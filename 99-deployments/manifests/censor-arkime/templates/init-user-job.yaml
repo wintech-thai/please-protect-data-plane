@@ -27,8 +27,8 @@ spec:
 
               for i in $(seq 1 30); do
                 if curl -k -s -f -u "$ES_USER:$ES_PASSWORD" \
-                  "$ES_URL/arkime_sessions" >/dev/null; then
-                  echo "Elasticsearch index is ready"
+                  "$ES_URL/_cluster/health?wait_for_status=yellow&timeout=5s" >/dev/null; then
+                  echo "Elasticsearch cluster is ready"
                   exit 0
                 fi
 
