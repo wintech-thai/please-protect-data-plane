@@ -1,0 +1,104 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: es-censor
+spec:
+  version: 8.18.8
+  secureSettings:
+    - secretName: gcs-credentials
+  nodeSets:
+  # ---------------------------------------------------------
+  # 1. Masters Node: เน้นบริหารจัดการ ไม่เก็บข้อมูล
+  # ---------------------------------------------------------
+  - name: masters
+    count: 1
+    config:
+      node.store.allow_mmap: true
+      node.roles: ["master"]
+      cluster.initial_master_nodes: ["es-censor-es-masters-0"]
+    podTemplate:
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=562144']
+        containers:
+        - name: elasticsearch
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms2g -Xmx2g" # 50% ของ Limit 4Gi
+          resources:
+            requests:
+              memory: 2Gi # เพิ่มจาก 1Gi เพื่อความนิ่ง
+              cpu: 1
+            limits:
+              memory: 4Gi
+              cpu: 2
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi # Master ไม่เก็บ Data ลดขนาดลงได้เพื่อประหยัดพื้นที่
+
+  # ---------------------------------------------------------
+  # 2. Data Node: รับโหลดหนัก เก็บข้อมูล ทำงาน Snapshot
+  # ---------------------------------------------------------
+  - name: data
+    count: 1
+    config:
+      node.store.allow_mmap: true
+      # เพิ่ม data_content และ data_hot เพื่อรองรับ Index ทั่วไปใน v8.x
+      node.roles: ["data", "data_content", "data_hot", "data_warm", "data_cold", "ingest"]
+    podTemplate:
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=562144']
+        containers:
+        - name: elasticsearch
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms4g -Xmx4g" # 50% ของ Limit 8Gi
+          resources:
+            requests:
+              memory: 4Gi # ขอไว้เลย 4Gi เพื่อป้องกันการโดนแย่ง RAM
+              cpu: 2      # ขอไว้เลย 2 Core สำหรับงานประมวลผลหนัก
+            limits:
+              memory: 8Gi
+              cpu: 4
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 600Gi
+  auth:
+    fileRealm:
+    - secretName: es-basic-authen
+
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: es-censor
+spec:
+  version: 8.18.8
+  count: 1
+  elasticsearchRef:
+    name: es-censor
+  config:
+    monitoring.ui.ccs.enabled: false
+    # ปรับให้ Kibana ไม่แย่ง RAM เยอะเกินไป (เผื่อเครื่อง K3S มี RAM จำกัด)
+    # server.maxPayload: 10485760

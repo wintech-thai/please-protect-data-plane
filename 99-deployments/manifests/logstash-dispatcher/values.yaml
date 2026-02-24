@@ -1,0 +1,112 @@
+
+logstash-dispatcher-es:
+  enabled: true
+  antiAffinity: soft
+
+  fullnameOverride: logstash-dispatcher-es
+  replicas: 2
+  image: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/logstash
+  imageTag: v8.15.1-3
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1.5"
+      memory: "2Gi"
+  service:
+    type: ClusterIP
+    ports:
+    - port: 9198
+      protocol: TCP
+      targetPort: 9198
+      name: metrics
+
+  extraEnvs:
+    - name: ES_USER
+      valueFrom:
+        secretKeyRef:
+          name: es-basic-authen
+          key: username
+
+    - name: ES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: es-basic-authen
+          key: password
+
+    - name: LS_JAVA_OPTS
+      value: "-Xmx256m -Xms256m"
+
+    - name: DUMMY
+      value: "000"
+
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  logstashConfig:
+    logstash.yml: |
+      http.host: "0.0.0.0"
+      pipeline.ecs_compatibility: "disabled"
+      http.port: 9600
+
+  extraContainers:
+    - name: logstash-exporter
+      image: bonniernews/logstash_exporter:latest
+      args:
+        - "--logstash.endpoint=http://localhost:9600"
+      ports:
+        - name: metrics
+          containerPort: 9198
+
+  extraVolumeMounts:
+    - name: scripts
+      mountPath: /scripts/
+      readOnly: true
+
+  extraVolumes:
+    - name: scripts
+      configMap:
+        name: dispatcher-cm
+
+  logstashPipeline:
+    logstash.conf: |
+      input {
+        kafka {
+          bootstrap_servers => "kafka.kafka.svc.cluster.local:9092"
+          group_id => "for-dispatcher-es"
+          consumer_threads => 1
+          topics => ["transformed-topic-beat"]
+          codec => "json"
+          type => "log"
+          auto_offset_reset => "earliest"
+        }
+      }
+
+      filter {
+          ruby {
+            path => "/scripts/dispatcher.rb"
+            script_params => {}
+          }
+      }
+
+      output {
+        #stdout { codec => json_lines }
+
+        elasticsearch {
+          hosts => [ "https://es-censor-es-http.elasticsearch.svc.cluster.local:9200" ]
+          ssl_certificate_verification => false
+          user => "${ES_USER}"
+          password => "${ES_PASSWORD}"
+          action => "create"
+
+          ecs_compatibility => "v8"
+          http_compression => "true"
+
+          index => "censor-events-%{[cust_ts_yyyy]}%{[cust_ts_mm]}%{[cust_ts_dd]}-%{[cust_pod_name_dispatcher]}"
+          template_overwrite => "true"
+          timeout => "0.5"
+        }
+      }

@@ -1,0 +1,24 @@
+
+postgresql:
+  enabled: true
+  fullnameOverride: postgresql
+  auth:
+    database: pp-dev
+    existingSecret: postgres-secret
+    secretKeys:
+      adminPasswordKey: adminPasswordKey
+  primary:
+    persistence:
+      size: 5Gi
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "300m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+
+  image:
+    registry: asia-southeast1-docker.pkg.dev
+    repository: its-artifact-commons/utils/postgresql
+    tag: "v16.2.0-2"

@@ -1,0 +1,84 @@
+---
+# Copy entire helm chart from https://github.com/arkime/helm
+fullnameOverride: "censor-arkime"
+ingress:
+  enabled: true
+  host: "arkime.rtarf-censor.dev-hubs.com"
+  tls:
+    - hosts:
+      - arkime.rtarf-censor.dev-hubs.com
+
+configMap:  
+  # -- Arkime configuration (config.ini)
+  config: |
+    [default]
+    maxFileSizeG=0.1
+
+    packetThreads=2
+    tpacketv3NumThreads=2
+    diskUtilization=70
+    maxFileAgeDays=7
+    freeSpaceG=500
+
+captureViewerVolumes:
+  volumes:
+    - name: pcap-dir
+      hostPath:
+        path: /data/pcap
+        type: DirectoryOrCreate
+
+sensor:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+    capture:
+      env:
+        - name: ARKIME__interface
+          value: "enp2s0" #เปลี่ยนตามเครื่องนั้น ๆ ที่ใช้ดักจับแพ็กเก็ต
+
+        - name: ARKIME__pcapReadMethod
+          value: tpacketv3
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 1Gi
+          #hugepages-2Mi: 512Mi
+
+env:
+  - name: DUMMY
+    value: "005"
+
+  - name: ARKIME__elasticsearch
+    value: "https://es-censor-es-http.elasticsearch.svc.cluster.local:9200"
+
+  # -- user:pass for OpenSearch/Elasticsearch - https://arkime.com/settings#elasticsearchBasicAuth
+  - name: ARKIME__elasticsearchBasicAuth
+    valueFrom:
+      secretKeyRef:
+        name: es-basic-authen
+        key: elasticsearchBasicAuth
+
+  # -- secret string - https://arkime.com/settings#serverSecret
+  - name: ARKIME__serverSecret
+    value: "thisisinternalsecretnoWorry"
+
+  # -- password secret string - https://arkime.com/settings#passwordSecret
+  - name: ARKIME__passwordSecret
+    value: "thisisinternalsecretnoWorry"
+
+  # -- Debug level for applications - https://arkime.com/settings#debug
+  - name: ARKIME__debug
+    value: "0"
+
+  # -- WISE - https://arkime.com/settings#wise
+  - name : ARKIME__plugins
+    value: "wise.so"
+
+  - name : ARKIME__wiseURL
+    value: "http://censor-arkime-wise.censor-arkime.svc.cluster.local:8081"
+
+  - name : ARKIME_centralViewer__plugins
+    value: "wise.js"

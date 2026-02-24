@@ -1,0 +1,107 @@
+{{- if .Values.misp.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: misp-core
+  labels:
+    app: misp-core
+spec:
+  selector:
+    matchLabels:
+      app: misp-core
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: misp-core
+    spec:
+      initContainers:
+      - name: wait-for-redis
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -z redis-master 6379; do echo waiting for redis; sleep 2; done;']
+      - name: wait-for-db
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -z misp-main-mariadb 3306; do echo waiting for database; sleep 2; done;']
+      - name: wait-for-modules
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -z misp-modules-service 6666; do echo waiting for misp-modules; sleep 2; done;']
+      containers:
+      - name: misp-core
+        image: ghcr.io/misp/misp-docker/misp-core:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        securityContext:
+          capabilities:
+            add: ["AUDIT_WRITE"]
+        env:
+        - name: "DUMMY"
+          value: "009"
+        envFrom:
+        - configMapRef:
+            name: misp-configmap
+        - secretRef:
+            name: misp-secrets
+        readinessProbe:
+          httpGet:
+            path: /users/heartbeat
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /users/heartbeat
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "500m"
+            memory: "2Gi"
+        volumeMounts:
+        - name: misp-config
+          mountPath: /var/www/MISP/app/Config/
+        - name: misp-logs
+          mountPath: /var/www/MISP/app/tmp/logs/
+        - name: misp-files
+          mountPath: /var/www/MISP/app/files/
+        # - name: misp-ssl
+        #   mountPath: /etc/nginx/certs/
+        #- name: cloudflare-tls
+        #  mountPath: /etc/nginx/certs/cert.pem
+        #  subPath: tls.crt
+        #- name: cloudflare-tls
+        #  mountPath: /etc/nginx/certs/key.pem
+        #  subPath: tls.key
+        - name: misp-gnupg
+          mountPath: /var/www/MISP/.gnupg/
+        
+      volumes:
+      - name: misp-config
+        persistentVolumeClaim:
+          claimName: misp-config-pvc
+      - name: misp-logs
+        persistentVolumeClaim:
+          claimName: misp-logs-pvc
+      - name: misp-files
+        persistentVolumeClaim:
+          claimName: misp-files-pvc
+      - name: misp-ssl
+        persistentVolumeClaim:
+          claimName: misp-ssl-pvc
+      - name: misp-gnupg
+        persistentVolumeClaim:
+          claimName: misp-gnupg-pvc
+      #- name: cloudflare-tls
+      #  secret:
+      #    secretName: cloudflare-tls-secret
+
+{{- end }}

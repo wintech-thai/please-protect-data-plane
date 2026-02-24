@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: pp-prod
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          custom: "true"
+  template:
+    metadata:
+      name: 'pp-prod'
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/wintech-thai/please-protect-appliance-apps.git
+        targetRevision: "production" #Based on environment
+        path: '.'
+        helm:
+          ignoreMissingValueFiles: true
+          valueFiles:
+            - values-files/values-production.yaml
+
+            # PP-Webs
+            - values-files/pp-web/pp-web-00-values.yaml
+            - values-files/pp-web/pp-web-01-production-values.yaml
+            - values-files/pp-web/pp-web-03-production-image-tag.yaml
+
+            # PP-Jobs
+            - values-files/pp-job/pp-job-00-values.yaml
+            - values-files/pp-job/pp-job-01-production-values.yaml
+            - values-files/pp-job/pp-job-03-production-image-tag.yaml
+
+            # pp-api
+            - values-files/pp-api/pp-api-00-values.yaml
+            - values-files/pp-api/pp-api-01-production-values.yaml
+            - values-files/pp-api/pp-api-03-production-image-tag.yaml
+      destination:
+        name: in-cluster
+        namespace: pp-production
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true

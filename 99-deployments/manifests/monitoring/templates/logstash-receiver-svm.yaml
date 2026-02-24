@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: logstash-beat-receiver
+  labels:
+    release: kube-prometheus-crds  # เพื่อให้ Prometheus มองเห็น
+spec:
+  namespaceSelector:
+    matchNames:
+      - logstash-receiver
+
+  selector:
+    matchLabels:
+      app: logstash-beat-receiver
+
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

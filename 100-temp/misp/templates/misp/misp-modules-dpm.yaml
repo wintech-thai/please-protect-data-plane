@@ -1,0 +1,59 @@
+{{- if .Values.misp.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: misp-modules
+  labels:
+    app: misp-modules
+spec:
+  selector:
+    matchLabels:
+      app: misp-modules
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: misp-modules
+    spec:
+      containers:
+      - name: misp-modules
+        image: ghcr.io/misp/misp-docker/misp-modules:latest
+        ports:
+        - containerPort: 6666
+        readinessProbe:
+          tcpSocket:
+            port: 6666
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 6666
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            memory: 512Mi
+            cpu: 100m
+        volumeMounts:
+        - name: misp-custom-modules-action
+          mountPath: /custom/action_mod/
+        - name: misp-custom-modules-expansion
+          mountPath: /custom/expansion/
+        - name: misp-custom-modules-export
+          mountPath: /custom/export_mod/
+        - name: misp-custom-modules-import
+          mountPath: /custom/import_mod/
+      volumes:
+      - name: misp-custom-modules-action
+        emptyDir: {}  # You can replace with ConfigMap or PVC if you have custom modules
+      - name: misp-custom-modules-expansion
+        emptyDir: {}
+      - name: misp-custom-modules-export
+        emptyDir: {}
+      - name: misp-custom-modules-import
+        emptyDir: {}
+
+{{- end }}

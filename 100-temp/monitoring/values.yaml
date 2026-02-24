@@ -1,0 +1,44 @@
+domain: grafana-k8s.rtarf-censor.dev-hubs.com
+domainProm: prometheus.rtarf-censor.dev-hubs.com
+domainAlm: alm.rtarf-censor.dev-hubs.com
+
+kube-prometheus-stack:
+  enabled: true
+
+  kubeControllerManager:
+    enabled: false
+
+  kubeScheduler:
+    enabled: false
+
+  kubeProxy:
+    enabled: false
+
+  nodeExporter:
+    enabled: true
+
+  prometheus:
+    prometheusSpec:
+      retention: 7d
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 20Gi
+
+  alertmanager:
+    config:
+      route:
+        receiver: discord-notifications
+        group_by: ['alertname','namespace']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+      receivers:
+      - name: discord-notifications
+        webhook_configs:
+        - url: http://discord-alm.discord-alm.svc.cluster.local:9094
+          send_resolved: true
+      - name: null

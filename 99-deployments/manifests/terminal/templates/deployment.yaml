@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: terminal
+spec:
+  replicas: {{ .Values.replica }}
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: terminal
+  template:
+    metadata:
+      labels:
+        app: terminal
+    spec:
+      containers:
+      - image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        command:
+          - "sleep"
+          - "604800"
+        imagePullPolicy: Always
+        name: terminal
+        resources:
+          requests:
+            memory: "{{ .Values.resources.requests.memory }}"
+            cpu: "{{ .Values.resources.requests.cpu }}"
+          limits:
+            memory: "{{ .Values.resources.limits.memory }}"
+            cpu: "{{ .Values.resources.limits.cpu }}"
+        env:
+        - name: DUMMY
+          value: "001"
+
+        securityContext:
+          allowPrivilegeEscalation: true
+          runAsUser: 0

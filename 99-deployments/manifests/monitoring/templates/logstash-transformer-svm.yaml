@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: logstash-transformer
+  labels:
+    release: kube-prometheus-crds  # เพื่อให้ Prometheus มองเห็น
+spec:
+  namespaceSelector:
+    matchNames:
+      - logstash-transformer
+
+  selector:
+    matchLabels:
+      app: logstash-transformer
+
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

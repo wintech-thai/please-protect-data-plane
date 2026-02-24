@@ -1,0 +1,79 @@
+
+logstash-aggregator-ioc:
+  enabled: true
+  antiAffinity: soft
+
+  fullnameOverride: logstash-aggregator-ioc
+  replicas: 2
+  image: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/logstash
+  imageTag: v8.15.1-3
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1.5"
+      memory: "2Gi"
+  service:
+    #type: NodePort
+    #ports:
+    #- port: 5044
+    #  #protocol: UDP
+    #  targetPort: 5044
+    #  nodePort: 30144
+
+  extraEnvs:
+    - name: REDIS_HOST
+      value: "redis-master.redis.svc.cluster.local"
+
+    - name: LS_JAVA_OPTS
+      value: "-Xmx256m -Xms256m"
+
+    - name: DUMMY
+      value: "001"
+
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  logstashConfig:
+    logstash.yml: |
+      http.host: "0.0.0.0"
+      pipeline.ecs_compatibility: "disabled"
+
+  extraVolumeMounts:
+    - name: scripts
+      mountPath: /scripts/
+      readOnly: true
+
+  extraVolumes:
+    - name: scripts
+      configMap:
+        name: aggregator-cm
+
+  logstashPipeline:
+    logstash.conf: |
+      input {
+        kafka {
+          bootstrap_servers => "kafka.kafka.svc.cluster.local:9092"
+          group_id => "for-aggregator-ioc"
+          consumer_threads => 1
+          topics => ["transformed-topic-beat"]
+          codec => "json"
+          type => "log"
+          auto_offset_reset => "earliest"
+        }
+      }
+
+      filter {
+          ruby {
+            path => "/scripts/aggregator-ioc.rb"
+            script_params => {}
+          }
+      }
+
+      output {
+        # stdout { codec => json_lines }
+        # Cache to Redis in the filter section
+      }

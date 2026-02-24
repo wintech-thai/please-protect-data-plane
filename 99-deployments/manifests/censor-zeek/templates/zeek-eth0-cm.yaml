@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zeek-config
+data:
+  {{ .Values.zeekEth0.zeeConfigName }}: |
+    # โหลด JSON log policy
+    @load policy/tuning/json-logs
+
+    # ตั้งค่าไดเรกทอรีสำหรับเก็บ log
+    redef Log::default_logdir = "{{ .Values.zeekEth0.logDir }}/current";
+
+    # ให้ timestamp เป็น ISO8601 (ดีกับ ECS)
+    redef LogAscii::json_timestamps = JSON::TS_ISO8601;
+

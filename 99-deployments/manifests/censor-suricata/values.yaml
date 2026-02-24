@@ -1,0 +1,19 @@
+suricataEth0:
+  enabled: true
+  fullnameOverride: suricata-eth0
+  interfaceName: enp2s0
+  logDir: /suricata-logs
+  suricataConfigName: suricata.yaml
+  dummyVar: "001"
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+  logstash:
+    host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
+    port: 5044

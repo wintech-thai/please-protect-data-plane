@@ -1,0 +1,44 @@
+domain: misp.rtarf-censor.dev-hubs.com
+
+misp:
+  enabled: true
+  fullnameOverride: misp
+
+redis:
+  enabled: true
+  fullnameOverride: redis
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      size: 1Gi    #10Gi
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+  image:
+    repository: bitnamilegacy/redis
+
+mariadb:
+  enabled: true
+  auth:
+    rootPassword: "mariadbpassword"
+    database: "misp"
+    username: "mispuser"
+    password: "mispuserpassword"
+  primary:
+    persistence:
+      size: 2Gi    #50Gi
+    # resources:
+    #   requests:
+    #     memory: "2Gi"
+    #     cpu: "500m"
+    #   limits:
+    #     memory: "4Gi"
+    #     cpu: "1Gi"
+  image:
+    repository: bitnamilegacy/mariadb

@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pgweb-ing
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+spec:
+  tls:
+    - hosts:
+      - {{ .Values.domain }}
+      #secretName: pgweb-cert
+  rules:
+    - host: {{ .Values.domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgweb-main #-xxxx # ปิดไปก่อนเพื่อ security, ให้ลบ xxxx ออกเมื่อต้องการใช้งานจริง, ปิดเมื่อเลิกใช้ด้วยนะ
+                port:
+                  number: 80

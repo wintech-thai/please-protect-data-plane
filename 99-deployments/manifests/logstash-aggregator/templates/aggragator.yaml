@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aggregator-cm
+  annotations:
+    checksum/config1: {{ .Files.Get "scripts/aggregator-ioc.rb" | sha256sum }}
+data:
+  aggregator-ioc.rb: |-
+{{ .Files.Get "scripts/aggregator-ioc.rb" |  indent 4 }}

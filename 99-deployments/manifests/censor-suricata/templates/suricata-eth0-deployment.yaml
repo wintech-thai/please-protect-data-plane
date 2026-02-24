@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.suricataEth0.fullnameOverride }}
+spec:
+  serviceName: {{ .Values.suricataEth0.fullnameOverride }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: suricata
+  template:
+    metadata:
+      labels:
+        app: suricata
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        # ======================
+        # Filebeat sidecar
+        # ======================
+        - name: filebeat
+          image: docker.elastic.co/beats/filebeat:8.12.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-e"
+            - "-c"
+            - "/usr/share/filebeat/filebeat.yml"
+          env:
+            - name: DUMMY
+              value: "{{ .Values.suricataEth0.dummyVar }}"
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: suricata-logs
+              mountPath: {{ .Values.suricataEth0.logDir }}
+              readOnly: true
+            - name: filebeat-config
+              mountPath: /usr/share/filebeat/filebeat.yml
+              subPath: filebeat.yml
+
+        ##### Suricata #####
+        - name: suricata
+          image: jasonish/suricata:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_RAW
+                - NET_ADMIN
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - "sh /entrypoint.sh"
+          resources:
+            requests:
+              cpu: {{ .Values.suricataEth0.resources.requests.cpu }}
+              memory: {{ .Values.suricataEth0.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.suricataEth0.resources.limits.cpu }}
+              memory: {{ .Values.suricataEth0.resources.limits.memory }}
+
+          volumeMounts:
+            - name: suricata-logs
+              mountPath: {{ .Values.suricataEth0.logDir }}
+
+            - name: config-volume
+              mountPath: /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
+              subPath: {{ .Values.suricataEth0.suricataConfigName }}
+
+            - name: config-script-volume
+              mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+
+            - name: suricata-rules
+              mountPath: /var/lib/suricata/rules
+
+      volumes:
+        - name: config-volume
+          configMap:
+            name: suricata-config
+
+        - name: config-script-volume
+          configMap:
+            name: suricata-script-config
+        
+        - name: filebeat-config
+          configMap:
+            name: filebeat-config
+        
+        - name: suricata-logs 
+          emptyDir: {}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: suricata-rules
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi

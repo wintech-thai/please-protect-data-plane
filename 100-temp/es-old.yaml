@@ -1,0 +1,99 @@
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: es-censor
+spec:
+  version: 8.18.8
+  #image: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/elasticsearch:v8.18.8_1
+
+  secureSettings:
+    - secretName: gcs-credentials
+  nodeSets:
+  - name: masters
+    count: 1
+    podTemplate:
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=562144']
+        containers:
+        - name: elasticsearch
+          #env:
+          #- name: ES_JAVA_OPTS
+          #  value: -Xms8g -Xmx8g
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 3
+            limits:
+              memory: 4Gi
+              cpu: 4
+    config:
+      node.store.allow_mmap: true
+      node.roles: ["master"]
+      cluster.initial_master_nodes: ["es-censor-es-masters-0"]
+
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 200Gi
+        #storageClassName: longhorn
+
+  - name: data
+    count: 1
+    podTemplate:
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=562144']
+        containers:
+        - name: elasticsearch
+          #env:
+          #- name: ES_JAVA_OPTS
+          #  value: -Xms8g -Xmx8g
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 1
+            limits:
+              memory: 8Gi
+              cpu: 4
+    config:
+      node.store.allow_mmap: true
+      node.roles: ["data", "data_warm", "data_cold", "ingest"]
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 600Gi
+  auth:
+    fileRealm:
+    - secretName: es-basic-authen
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: es-censor
+spec:
+  version: 8.18.8
+  count: 1
+  elasticsearchRef:
+    name: es-censor
+  config:
+    monitoring.ui.ccs.enabled: false

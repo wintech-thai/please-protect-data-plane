@@ -1,0 +1,59 @@
+{{- if .Values.misp.enabled }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: misp-configmap
+data:
+  MISP_CHECK_SEC_FETCH_SITE_HEADER: "false"
+
+  # Database configuration
+  MYSQL_HOST: "misp-main-mariadb"
+  MYSQL_PORT: "3306"
+  MYSQL_USER: "mispuser"
+  MYSQL_DATABASE: "misp"
+  
+  # Redis configuration
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  
+  # MISP Core configuration
+  BASE_URL: "https://{{ .Values.domain }}" # If HTTPS set it "https://<domain>"
+  CRON_USER_ID: "1"
+  CRON_PULLALL: "0 1 * * *"
+  CRON_PUSHALL: "0 0 * * *"
+  DISABLE_IPV6: "true"
+  DISABLE_SSL_REDIRECT: "true"      # If HTTPS set it "false"
+  ENABLE_DB_SETTINGS: "false"
+  ENABLE_BACKGROUND_UPDATES: "true"
+  ADMIN_EMAIL: "admin@admin.test"
+  ADMIN_ORG: "MISP"
+  
+  # PHP settings
+  PHP_MEMORY_LIMIT: "2048M"
+  PHP_MAX_EXECUTION_TIME: "300"
+  PHP_UPLOAD_MAX_FILESIZE: "50M"
+  PHP_POST_MAX_SIZE: "50M"
+  PHP_MAX_INPUT_TIME: "300"
+  PHP_MAX_FILE_UPLOADS: "50"
+  PHP_TIMEZONE: "Asia/Bangkok"
+  
+  # PHP FPM settings
+  PHP_FCGI_CHILDREN: "5"
+  PHP_FCGI_START_SERVERS: "2"
+  PHP_FCGI_SPARE_SERVERS: "1"
+  PHP_FCGI_MAX_REQUESTS: "0"
+  
+  # PHP Session settings
+  PHP_SESSION_TIMEOUT: "10080"        # seconds
+  PHP_SESSION_COOKIE_TIMEOUT: "10080"       # seconds
+  PHP_SESSION_DEFAULTS: "php"
+  PHP_SESSION_AUTO_REGENERATE: "true"       # Default: false
+  PHP_SESSION_CHECK_AGENT: "false"       # Default: false
+  PHP_SESSION_COOKIE_SECURE: "true"       # If HTTPS set it "true"
+  PHP_SESSION_COOKIE_SAMESITE: "Lax"
+  #PHP_SESSION_REDIS_HOST: "redis-master"
+  #PHP_SESSION_REDIS_PORT: "6379"
+  #PHP_SESSION_REDIS_DATABASE: "1"
+
+{{- end }}

@@ -1,0 +1,105 @@
+
+logstash-transformer:
+  enabled: true
+  antiAffinity: soft
+
+  fullnameOverride: logstash-transformer
+  replicas: 2
+  image: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/logstash
+  imageTag: v8.15.1-3
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1.5"
+      memory: "2Gi"
+  service:
+    type: ClusterIP
+    ports:
+    - port: 9198
+      protocol: TCP
+      targetPort: 9198
+      name: metrics
+
+  extraEnvs:
+    - name: LS_JAVA_OPTS
+      value: "-Xmx256m -Xms256m"
+
+    - name: DUMMY
+      value: "004"
+
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  logstashConfig:
+    logstash.yml: |
+      http.host: "0.0.0.0"
+      pipeline.ecs_compatibility: "disabled"
+      http.port: 9600
+
+  extraContainers:
+    - name: logstash-exporter
+      image: bonniernews/logstash_exporter:latest
+      args:
+        - "--logstash.endpoint=http://localhost:9600"
+      ports:
+        - name: metrics
+          containerPort: 9198
+
+  extraVolumeMounts:
+    - name: scripts
+      mountPath: /scripts/
+      readOnly: true
+
+  extraVolumes:
+    - name: scripts
+      configMap:
+        name: transformer-cm
+
+  logstashPipeline:
+    logstash.conf: |
+      input {
+        kafka {
+          bootstrap_servers => "kafka.kafka.svc.cluster.local:9092"
+          group_id => "for-transformer"
+          consumer_threads => 1
+          topics => ["received-topic-beat"]
+          codec => "json"
+          type => "log"
+          auto_offset_reset => "earliest"
+        }
+      }
+
+      filter {
+          ruby {
+            path => "/scripts/transformer.rb"
+            script_params => {}
+          }
+
+          if [network][direction] == "outbound" {
+            geoip {
+              source => "[destination][ip]"
+              target => "[destination][geoip]"
+            }
+          }
+
+          if [network][direction] == "external" {
+            geoip {
+              source => "[source][ip]"
+              target => "[source][geoip]"
+            }
+          }
+      }
+
+      output {
+        #stdout { codec => json_lines }
+
+        kafka {
+          bootstrap_servers => "kafka.kafka.svc.cluster.local:9092"
+          codec => json
+          topic_id => "transformed-topic-beat"
+        }
+      }

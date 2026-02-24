@@ -1,0 +1,19 @@
+zeekEth0:
+  enabled: true
+  fullnameOverride: zeek-eth0
+  interfaceName: af_packet::enp2s0 # enp2s0
+  logDir: /usr/local/zeek/logs
+  zeeConfigName: custom_logs.zeek
+  dummyVar: "000"
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+  logstash:
+    host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
+    port: 5044

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: helm-cert-manager
+version: 1.0.0
+appVersion: 1.23.0
+description: A Helm chart wrapper for kafka
+
+dependencies:
+  - name: kafka
+    version: "32.4.3"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: kafka.enabled
+
+  - name: "kafka-ui"
+    alias: kafka-ui
+    condition: kafka-ui.enabled
+    repository: "https://provectus.github.io/kafka-ui-charts"
+    version: "0.7.5"
