@@ -16,7 +16,7 @@ spec:
     spec:
       project: "default"
       source:
-        repoURL: https://github.com/rtaf-soc/rtarf-dfn-apps.git
+        repoURL: https://github.com/wintech-thai/please-protect-data-plane.git
         targetRevision: "{{name}}" #Based on environment
         path: '99-deployments/manifests/monitoring'
         helm:
