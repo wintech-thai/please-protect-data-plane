@@ -11,10 +11,13 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
-      containers:
-        - name: init-admin
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: IfNotPresent
+
+      #################################################
+      # 1️⃣ รอ Elasticsearch ให้พร้อมก่อน
+      #################################################
+      initContainers:
+        - name: wait-for-es
+          image: curlimages/curl:8.5.0
           command:
             - /bin/sh
             - -c
@@ -23,23 +26,46 @@ spec:
               echo "Waiting for Elasticsearch index arkime_sessions..."
 
               for i in $(seq 1 30); do
-                if curl -s -f -u "$ES_USER:$ES_PASSWORD" \
+                if curl -k -s -f -u "$ES_USER:$ES_PASSWORD" \
                   "$ES_URL/arkime_sessions" >/dev/null; then
                   echo "Elasticsearch index is ready"
-                  break
+                  exit 0
                 fi
 
                 echo "Retry $i/30 - ES not ready"
                 sleep 5
               done
 
-              # Final check
-              if ! curl -s -f -u "$ES_USER:$ES_PASSWORD" \
-                "$ES_URL/arkime_sessions" >/dev/null; then
-                echo "Elasticsearch not ready after retries"
-                exit 1
-              fi
+              echo "Elasticsearch not ready after retries"
+              exit 1
 
+          env:
+            - name: ES_URL
+              value: "https://es-censor-es-http.elasticsearch.svc.cluster.local:9200"
+
+            - name: ES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: es-basic-authen
+                  key: elasticsearchUser
+
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: es-basic-authen
+                  key: elasticsearchPassword
+
+      #################################################
+      # 2️⃣ สร้าง Arkime admin user
+      #################################################
+      containers:
+        - name: create-admin
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
               echo "Checking if Arkime admin exists..."
 
               if /opt/arkime/bin/arkime_add_user.sh --list 2>/dev/null | grep -q "$ARKIME_USER"; then
@@ -57,9 +83,6 @@ spec:
               echo "Admin user created successfully"
 
           env:
-            - name: ES_URL
-              value: "https://es-censor-es-http.elasticsearch.svc.cluster.local:9200"
-
             - name: ARKIME_USER
               valueFrom:
                 secretKeyRef:
@@ -71,15 +94,3 @@ spec:
                 secretKeyRef:
                   name: init-user-secret
                   key: ARKIME_PASSWORD
-
-            - name: ES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: es-basic-authen
-                  key: elasticsearchUser
-
-            - name: ES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: es-basic-authen
-                  key: elasticsearchPassword
