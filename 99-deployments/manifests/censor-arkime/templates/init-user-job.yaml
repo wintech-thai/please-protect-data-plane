@@ -94,3 +94,11 @@ spec:
                 secretKeyRef:
                   name: init-user-secret
                   key: ARKIME_PASSWORD
+
+          volumeMounts:
+            - name: arkime-config
+              mountPath: /opt/arkime/etc/
+      volumes:
+      - name: arkime-config
+        configMap:
+          name: {{ include "arkime.fullname" . }}-config-map
