@@ -82,3 +82,17 @@ env:
 
   - name : ARKIME_centralViewer__plugins
     value: "wise.js"
+
+  - name: ARKIME_USER
+    valueFrom:
+      secretKeyRef:
+        name: init-user-secret
+        key: ARKIME_USER
+        optional: true
+
+  - name: ARKIME_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: init-user-secret
+        key: ARKIME_PASSWORD
+        optional: true
