@@ -61,7 +61,21 @@ env:
         name: arkime-password-secret
         key: passwordSecret
         optional: true
-  
+
+  - name: ARKIME_USER
+    valueFrom:
+      secretKeyRef:
+        name: init-user-secret
+        key: ARKIME_USER
+        optional: true
+
+  - name: ARKIME_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: init-user-secret
+        key: ARKIME_PASSWORD
+        optional: true
+
   # -- Debug level for applications - https://arkime.com/settings#debug
   - name: ARKIME__debug
     value: "0"
