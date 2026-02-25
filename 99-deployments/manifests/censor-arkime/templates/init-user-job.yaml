@@ -63,19 +63,12 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Checking if Arkime admin exists..."
-
-              if /opt/arkime/bin/arkime_add_user.sh --list 2>/dev/null | grep -q "$ARKIME_USER"; then
-                echo "Admin already exists"
-                exit 0
-              fi
-
               echo "Creating Arkime admin user..."
               /opt/arkime/bin/arkime_add_user.sh \
                 "$ARKIME_USER" \
                 "Admin User" \
                 "$ARKIME_PASSWORD" \
-                --admin
+                --admin --insecure
 
               echo "Admin user created successfully"
 
