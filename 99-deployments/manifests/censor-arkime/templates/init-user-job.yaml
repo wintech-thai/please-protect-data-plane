@@ -73,6 +73,10 @@ spec:
               echo "Admin user created successfully"
 
           env:
+            {{- if .Values.env }}
+              {{- toYaml .Values.env | nindent 10 }}
+            {{- end }}
+            
             - name: ARKIME_USER
               valueFrom:
                 secretKeyRef:
@@ -84,7 +88,6 @@ spec:
                 secretKeyRef:
                   name: init-user-secret
                   key: ARKIME_PASSWORD
-
           volumeMounts:
             - name: arkime-config
               mountPath: /opt/arkime/etc/
