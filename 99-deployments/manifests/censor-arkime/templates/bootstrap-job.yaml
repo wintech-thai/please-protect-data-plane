@@ -59,7 +59,7 @@ spec:
       containers:
       - name: arkime-bootstrap
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        command: [ "/bin/sh", "-c", "yes 'confirm' | /opt/arkime/db/db.pl --insecure ${ARKIME__elasticsearch} init --ifneeded" ]
+        command: [ "/bin/sh", "-c", "/opt/arkime/db/db.pl --insecure ${ARKIME__elasticsearch} init --ifneeded -y" ]
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
           {{- if .Values.bootstrap.env }} 
