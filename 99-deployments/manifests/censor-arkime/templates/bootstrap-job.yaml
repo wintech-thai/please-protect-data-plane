@@ -70,11 +70,7 @@ spec:
               echo "===> Running Arkime init"
               /opt/arkime/db/db.pl --insecure ${ARKIME__elasticsearch} init --ifneeded
               echo "===> Creating admin user"
-              /opt/arkime/bin/arkime_add_user.sh \
-                -u ${ARKIME_USER} \
-                -p ${ARKIME_PASSWORD} \
-                -n "Administrator" \
-                --admin || true
+              /opt/arkime/bin/arkime_add_user.sh -u ${ARKIME_USER} -p ${ARKIME_PASSWORD} -n "Administrator" --admin || true
 
         #command: [ "/bin/sh", "-c", "sleep infinity" ]
         imagePullPolicy: {{ .Values.imagePullPolicy }}
