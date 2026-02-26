@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: es-init-02 #เปลี่ยนชื่อเมื่อมีการแก้ไขสคริปต์เพื่อให้รันใหม่ได้
+  name: es-init-03 #เปลี่ยนชื่อเมื่อมีการแก้ไขสคริปต์เพื่อให้รันใหม่ได้
 spec:
   backoffLimit: 5
   template:
@@ -28,7 +28,7 @@ spec:
 
           env:
             - name: ES_URL
-              value: "http://es-censor-es-http:9200"
+              value: "https://es-censor-es-http:9200"
 
             - name: ES_USER
               valueFrom:
