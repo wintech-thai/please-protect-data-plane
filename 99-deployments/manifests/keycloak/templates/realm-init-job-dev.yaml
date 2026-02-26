@@ -15,7 +15,7 @@ spec:
             - -c
             - |
               echo "Waiting for Keycloak to be ready..."
-              until curl -s http://keycloak/health/ready | grep -q '"status":"UP"'; do
+              until [ "$(curl -s -o /dev/null -w '%{http_code}' http://keycloak/health)" = "404" ]; do
                 echo "Still waiting..."
                 sleep 5
               done
