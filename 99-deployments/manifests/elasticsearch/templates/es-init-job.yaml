@@ -33,14 +33,14 @@ spec:
             - name: ES_USER
               valueFrom:
                 secretKeyRef:
-                  name: username
-                  key: es-basic-authen
+                  name: es-basic-authen
+                  key: username
 
             - name: ES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: password
-                  key: es-basic-authen
+                  name: es-basic-authen
+                  key: password
 
             - name: INDEX_TEMPLATE_NAME
               value: "censor-logs-template"
