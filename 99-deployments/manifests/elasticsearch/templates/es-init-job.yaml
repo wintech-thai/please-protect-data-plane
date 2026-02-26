@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: es-init-04 #เปลี่ยนชื่อเมื่อมีการแก้ไขสคริปต์เพื่อให้รันใหม่ได้
+  name: es-init-05 #เปลี่ยนชื่อเมื่อมีการแก้ไขสคริปต์เพื่อให้รันใหม่ได้
 spec:
   backoffLimit: 5
   template:
@@ -16,7 +16,7 @@ spec:
             - |
               echo "Waiting for ES to be ready with authentication..."
 
-              until curl -s -f -u "$ES_USER:$ES_PASSWORD" \
+              until curl -k -s -f -u "$ES_USER:$ES_PASSWORD" \
                 "$ES_URL/_cluster/health?wait_for_status=yellow&timeout=5s" | grep -q '"status":"\(yellow\|green\)"'; do
                 echo "Elasticsearch is not ready yet... sleeping"
                 sleep 5
