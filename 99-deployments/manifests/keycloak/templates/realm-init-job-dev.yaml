@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-idp-bootstrap-dev
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: idp-init
+          image: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:v0.0.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for Keycloak to be ready..."
+              until curl -s http://keycloak/health/ready | grep -q '"status":"UP"'; do
+                echo "Still waiting..."
+                sleep 5
+              done
+              echo "Keycloak is ready. Running bootstrap..."
+              ruby idp-init.rb
+          env:
+            - name: IDP_URL
+              value: "http://keycloak"
+
+            - name: IDP_CLIENT_ID
+              value: "pp-api"
+
+            - name: IDP_REALM
+              value: "pp-dev"
+
+            - name: IDP_INSECURE_SKIP_VERIFY
+              value: "true"
+
+            - name: IDP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: keycloak-admin-user
+
+            - name: IDP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: keycloak-admin-password

@@ -42,6 +42,9 @@ keycloak:
     - name: KEYCLOAK_PROXY_HEADERS
       value: "xforwarded"
 
+    - name: KC_HEALTH_ENABLED
+      value: "true"
+
     - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:
