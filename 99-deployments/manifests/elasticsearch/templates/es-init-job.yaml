@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: es-init-01
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: es-init
+          image: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:v0.0.7
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for ES to be ready with authentication..."
+
+              until curl -s -u "$ES_USER:$ES_PASSWORD" \
+                "$ES_URL/_cluster/health?wait_for_status=yellow&timeout=5s" \
+                | grep -q '"status"'; do
+                echo "Still waiting..."
+                sleep 5
+              done
+
+              echo "ES is ready. Running bootstrap..."
+              ruby es-init.rb
+
+          env:
+            - name: ES_URL
+              value: "http://es-censor-es-http:9200"
+
+            - name: ES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: username
+                  key: es-basic-authen
+
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: password
+                  key: es-basic-authen
+
+            - name: INDEX_TEMPLATE_NAME
+              value: "censor-logs-template"
+
+            - name: INDEX_ILM_POLICY
+              value: "censor-logs-ilm-policy"
+
+            - name: INDEX_NAME
+              value: "censor-events-*"
