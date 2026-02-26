@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-idp-bootstrap-dev-02 # ใช้วิธีการ rename เพื่อให้ Job ใหม่ถูกสร้างขึ้นและทำงานใหม่ทุกครั้งที่ apply manifest นี้
+  name: keycloak-idp-bootstrap-dev-03 # ใช้วิธีการ rename เพื่อให้ Job ใหม่ถูกสร้างขึ้นและทำงานใหม่ทุกครั้งที่ apply manifest นี้
 spec:
   backoffLimit: 5
   template:
@@ -9,7 +9,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: idp-init
-          image: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:v0.0.5
+          image: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:v0.0.6
           command:
             - /bin/sh
             - -c
