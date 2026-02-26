@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: keycloak-idp-bootstrap-prod-01 # ใช้วิธีการ rename เพื่อให้ Job ใหม่ถูกสร้างขึ้นและทำงานใหม่ทุกครั้งที่ apply manifest นี้
+  name: keycloak-idp-bootstrap-prod-02 # ใช้วิธีการ rename เพื่อให้ Job ใหม่ถูกสร้างขึ้นและทำงานใหม่ทุกครั้งที่ apply manifest นี้
 spec:
   backoffLimit: 5
   template:
@@ -45,3 +45,15 @@ spec:
                 secretKeyRef:
                   name: keycloak-credentials
                   key: keycloak-admin-password
+
+            - name: INITIAL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: initial-user-secret
+                  key: INITIAL_USER
+
+            - name: INITIAL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: initial-user-secret
+                  key: INITIAL_PASSWORD
