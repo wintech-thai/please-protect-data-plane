@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: es-init-02
+  name: es-init-02 #เปลี่ยนชื่อเมื่อมีการแก้ไขสคริปต์เพื่อให้รันใหม่ได้
 spec:
   backoffLimit: 5
   template:
