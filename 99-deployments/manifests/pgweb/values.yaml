@@ -6,3 +6,5 @@ pgweb:
   nameOverride: pgweb
   ingress:
     enabled: false
+  extraArgs:
+    - "--url-prefix=/tools/pgweb"
