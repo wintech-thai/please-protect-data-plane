@@ -102,3 +102,5 @@ spec:
     monitoring.ui.ccs.enabled: false
     # ปรับให้ Kibana ไม่แย่ง RAM เยอะเกินไป (เผื่อเครื่อง K3S มี RAM จำกัด)
     # server.maxPayload: 10485760
+    server.basePath: "/tools/kibana"
+    server.rewriteBasePath: true
