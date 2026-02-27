@@ -18,8 +18,8 @@ spec:
       - {{ .Values.domain }}
       #secretName: keycloak-cert
   rules:
-    - http:
-      host: {{ .Values.domain }}
+    - host: {{ .Values.domain }}
+      http:
         paths:
           - path: /tools/keycloak
             pathType: Prefix
