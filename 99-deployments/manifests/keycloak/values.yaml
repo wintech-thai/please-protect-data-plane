@@ -57,5 +57,5 @@ keycloak:
     - name: KC_HTTP_RELATIVE_PATH
       value: "/tools/keycloak"
 
-    - name: KC_PROXY
-      value: "edge"
+    #- name: KC_PROXY
+    #  value: "edge"
