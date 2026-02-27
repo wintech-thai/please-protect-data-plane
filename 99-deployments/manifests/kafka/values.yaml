@@ -12,6 +12,7 @@ kafka-ui:
       KAFKA_CLUSTERS_0_READONLY: "false"
       AUTH_TYPE: "DISABLED"
       SECURITY_BASIC_ENABLED: "true"
+      SERVER_SERVLET_CONTEXT_PATH: "/tools/kafka-ui"
 
 kafka:
   enabled: true
