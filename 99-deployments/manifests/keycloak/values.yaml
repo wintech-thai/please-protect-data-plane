@@ -51,3 +51,11 @@ keycloak:
           name: keycloak-credentials
           key: keycloak-admin-password
 
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+
+    - name: KC_HTTP_RELATIVE_PATH
+      value: "/tools/keycloak"
+
+    - name: KC_PROXY
+      value: "edge"
