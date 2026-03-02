@@ -13,6 +13,7 @@ spec:
       labels:
         app: terminal
     spec:
+      serviceAccountName: terminal-sa
       containers:
       - image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         command:
@@ -32,5 +33,5 @@ spec:
           value: "001"
 
         securityContext:
-          allowPrivilegeEscalation: true
+          #allowPrivilegeEscalation: true
           runAsUser: 0
