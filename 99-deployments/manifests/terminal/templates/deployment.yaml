@@ -17,8 +17,10 @@ spec:
       containers:
       - image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         command:
-          - "sleep"
-          - "604800"
+          - "/bin/bash"
+        args:
+          - "-c"
+          - "while true; do sleep 3600; done"
         imagePullPolicy: Always
         name: terminal
         resources:
