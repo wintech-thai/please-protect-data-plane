@@ -55,6 +55,7 @@ def filter(event)
     srcIp = event.get('[source][ip]')
     dstIp = event.get('[destination][ip]')
     dnsQuestionDomain = event.get('[dns][question][name]')
+    sslServerName = event.get('[zeek][ssl][server][name]')
     httpDomain = event.get('[url][domain]')
     fileHashSha256 = event.get('[file][hash][sha256]')
     fileHashMD5 = event.get('[file][hash][md5]')
@@ -75,6 +76,12 @@ def filter(event)
     if dnsQuestionDomain && !dnsQuestionDomain.empty?
         iocType = 'Domain'
         iocCacheKeySeen = "IOC_SEEN!!#{iocType}!!#{dataSet}!!#{dnsQuestionDomain}"
+        set_cache_key_value(@redisObj, iocCacheKeySeen, 30, Time.now.to_i)
+    end
+
+    if sslServerName && !sslServerName.empty?
+        iocType = 'Domain'
+        iocCacheKeySeen = "IOC_SEEN!!#{iocType}!!#{dataSet}!!#{sslServerName}"
         set_cache_key_value(@redisObj, iocCacheKeySeen, 30, Time.now.to_i)
     end
 
