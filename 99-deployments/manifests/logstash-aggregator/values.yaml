@@ -30,7 +30,7 @@ logstash-aggregator-ioc:
       value: "-Xmx256m -Xms256m"
 
     - name: DUMMY
-      value: "001"
+      value: "002"
 
     - name: POD_NAME
       valueFrom:
