@@ -1,7 +1,7 @@
 zeekEth0:
   enabled: true
   fullnameOverride: zeek-eth0
-  interfaceName: af_packet::enp2s0 # enp2s0
+  interfaceName: "" # not used, will be auto-detected in the entrypoint script
   logDir: /usr/local/zeek/logs
   zeeConfigName: custom_logs.zeek
   dummyVar: "000"

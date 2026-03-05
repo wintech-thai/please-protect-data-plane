@@ -66,9 +66,10 @@ spec:
             - |
               set -e
               export ZEEK_LOG_DIR={{ .Values.zeekEth0.logDir }}/current
+              IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
               mkdir -p $ZEEK_LOG_DIR
               echo "Log dir = $ZEEK_LOG_DIR"
-              zeek -i {{ .Values.zeekEth0.interfaceName }} -C local /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
+              zeek -i af_packet::${IFACE} -C local /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
 
           resources:
             requests:
