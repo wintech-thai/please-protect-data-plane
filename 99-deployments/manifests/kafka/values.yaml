@@ -26,7 +26,14 @@ kafka:
         metrics: 5556
       image:
         repository: bitnamilegacy/jmx-exporter
-
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+          
     service:
       ports:
         metrics: 5556
