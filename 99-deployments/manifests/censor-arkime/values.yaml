@@ -151,10 +151,18 @@ sensor:
     fsGroup: 65532
   containers:
     capture:
-      command: ["/bin/sh", "-c", "/opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}"]
+      #command: ["/bin/sh", "-c", "/opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}"]
+      command:
+        - /bin/sh
+        - -c
+        - |
+          IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
+          echo "Detected interface: $IFACE"
+          export ARKIME__interface=$IFACE
+          exec /opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}
       env:
-        - name: ARKIME__interface
-          value: "eth0"
+        #- name: ARKIME__interface
+        #  value: "eth0"
         - name: ARKIME__pcapReadMethod
           value: tpacketv3
       envFrom: []
@@ -166,7 +174,15 @@ sensor:
       extraVolumeMounts: []
     viewer:
       enabled: true
-      command: ["/bin/sh", "-c", "/opt/arkime/bin/docker.sh viewer --insecure --host ${POD_IP} --node ${NODE_NAME}"]
+      #command: ["/bin/sh", "-c", "/opt/arkime/bin/docker.sh viewer --insecure --host ${POD_IP} --node ${NODE_NAME}"]
+      command:
+        - /bin/sh
+        - -c
+        - |
+          IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
+          echo "Detected interface: $IFACE"
+          export ARKIME__interface=$IFACE
+          exec /opt/arkime/bin/docker.sh viewer --insecure --host ${POD_IP} --node ${NODE_NAME}
       env: []
       envFrom: []
       resources:
