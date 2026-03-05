@@ -4,7 +4,7 @@ logstash-aggregator-ioc:
   antiAffinity: soft
 
   fullnameOverride: logstash-aggregator-ioc
-  replicas: 2
+  replicas: 1
   image: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/logstash
   imageTag: v8.15.1-3
   resources:
