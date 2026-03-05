@@ -18,7 +18,7 @@ kafka:
   enabled: true
   fullnameOverride: kafka
   autoCreateTopicsEnable: true
-
+  
   controller:
     #heapOpts: "-Xms1g -Xmx1g"
     resources:
