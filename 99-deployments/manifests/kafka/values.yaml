@@ -37,21 +37,21 @@ kafka:
   kraft:
     enabled: true
 
-  extraConfig: |
-    offsets.topic.replication.factor=1
-    transaction.state.log.replication.factor=1
-    transaction.state.log.min.isr=1
-    default.replication.factor=1
-    min.insync.replicas=1
-    auto.create.topics.enable=true
+  #extraConfig: |
+  #  offsets.topic.replication.factor=1
+  #  transaction.state.log.replication.factor=1
+  #  transaction.state.log.min.isr=1
+  #  default.replication.factor=1
+  #  min.insync.replicas=1
+  #  auto.create.topics.enable=true
 
   zookeeper:
     enabled: false
 
-  replicaCount: 1
+  replicaCount: 3
 
   controller:
-    replicaCount: 1
+    replicaCount: 3
 
   listeners:
     client:
