@@ -21,7 +21,7 @@ kafka:
   
   controller:
     replicaCount: 3
-    #heapOpts: "-Xms1g -Xmx1g"
+    heapOpts: "-Xms1g -Xmx1g"
     resources:
       requests:
         cpu: 2
