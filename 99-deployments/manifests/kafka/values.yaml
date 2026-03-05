@@ -24,7 +24,7 @@ kafka:
     heapOpts: "-Xms1g -Xmx1g"
     resources:
       requests:
-        cpu: 2
+        cpu: 1
         memory: 512Mi
       limits:
         cpu: 3
