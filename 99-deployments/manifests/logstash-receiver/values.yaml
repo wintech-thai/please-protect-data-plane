@@ -12,7 +12,7 @@ logstash-beat-receiver:
       cpu: "500m"
       memory: "1Gi"
     limits:
-      cpu: "1.5"
+      cpu: "2"
       memory: "3Gi"
 
   extraEnvs:
