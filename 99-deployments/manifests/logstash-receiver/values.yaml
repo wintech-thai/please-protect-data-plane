@@ -13,11 +13,11 @@ logstash-beat-receiver:
       memory: "1Gi"
     limits:
       cpu: "2"
-      memory: "4Gi"
+      memory: "6Gi"
 
   extraEnvs:
     - name: LS_JAVA_OPTS
-      value: "-Xmx2g -Xms2g"
+      value: "-Xmx3g -Xms3g"
 
     - name: DUMMY
       value: "000"
