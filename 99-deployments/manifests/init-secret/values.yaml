@@ -1,6 +1,6 @@
 image:
   name: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs
-  tag: develop-b6106f4
+  tag: develop-76e9ef4
 
 configs: {}
 replica: 1
