@@ -8,6 +8,7 @@ data:
     set -e
 
     RULE_FILE="/var/lib/suricata/rules/suricata.rules"
+    IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
 
 
     touch {{ .Values.suricataEth0.logDir }}/suricata.fast.log
@@ -19,4 +20,4 @@ data:
       echo "[*] Rules already exist, skip update"
     fi
 
-    exec suricata -i {{ .Values.suricataEth0.interfaceName }} -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
+    exec suricata -i ${IFACE} -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}

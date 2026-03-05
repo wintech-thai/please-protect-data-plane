@@ -1,7 +1,7 @@
 suricataEth0:
   enabled: true
   fullnameOverride: suricata-eth0
-  interfaceName: enp2s0
+  interfaceName: "" # This will be auto-detected in the entrypoint script
   logDir: /suricata-logs
   suricataConfigName: suricata.yaml
   dummyVar: "001"
