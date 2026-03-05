@@ -20,6 +20,7 @@ kafka:
   autoCreateTopicsEnable: true
   
   controller:
+    replicaCount: 3
     #heapOpts: "-Xms1g -Xmx1g"
     resources:
       requests:
@@ -56,11 +57,6 @@ kafka:
 
   zookeeper:
     enabled: false
-
-  replicaCount: 3
-
-  controller:
-    replicaCount: 3
 
   listeners:
     client:
