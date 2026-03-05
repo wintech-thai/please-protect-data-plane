@@ -1,0 +1,14 @@
+image:
+  name: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs
+  tag: v0.0.11
+
+configs: {}
+replica: 1
+
+resources:
+  requests:
+    memory: "200Mi"
+    cpu: "100m"
+  limits:
+    memory: "400Mi"
+    cpu: "150m"
