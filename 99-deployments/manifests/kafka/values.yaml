@@ -32,7 +32,7 @@ kafka:
 
   metrics:
     jmx:
-      enabled: true
+      enabled: false # ปิดไปก่อนเพราะทำให้ OOM
       containerPorts:
         metrics: 5556
       image:
