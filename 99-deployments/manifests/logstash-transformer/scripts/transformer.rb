@@ -74,7 +74,7 @@ def load_cache(orgId, cacheConfigKey)
 
     if (currentEpochSec - lastRunSec > cacheTtlSec)
         if (cacheConfigKey == 'ip_address_map')
-            load_ip_map_zone('default', 'Development') # TODO: make env dynamic later
+            load_ip_map_zone('default', 'Production') # TODO: make env dynamic later
             @cacheLoadedConfig[cacheConfigKey]['last_run_epoch_sec'] = Time.now.to_i
         end
     end
