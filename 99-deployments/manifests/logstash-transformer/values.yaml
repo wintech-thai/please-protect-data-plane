@@ -27,7 +27,7 @@ logstash-transformer:
       value: "-Xmx256m -Xms256m"
 
     - name: DUMMY
-      value: "004"
+      value: "005"
 
     - name: POD_NAME
       valueFrom:
