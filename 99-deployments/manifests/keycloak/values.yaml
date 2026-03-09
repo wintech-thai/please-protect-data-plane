@@ -6,9 +6,9 @@ keycloak:
 
   resources:
     limits:
-      cpu: 1
+      cpu: 2
       ephemeral-storage: 2Gi
-      memory: 2Gi
+      memory: 3Gi
     requests:
       cpu: 500m
       ephemeral-storage: 50Mi
