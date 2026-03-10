@@ -75,6 +75,8 @@ spec:
               until wget -qO- \
                 --user="$ES_USER" \
                 --password="$ES_PASSWORD" \
+                --auth-no-challenge \
+                --no-check-certificate \
                 "${ARKIME__elasticsearch}/_cluster/health?wait_for_status=yellow&timeout=5s" \
                 | grep -q '"status":"\(yellow\|green\)"'; do
                 echo "Elasticsearch not ready yet... sleeping"
