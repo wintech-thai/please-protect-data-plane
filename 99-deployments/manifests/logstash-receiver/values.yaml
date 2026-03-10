@@ -17,7 +17,7 @@ logstash-beat-receiver:
 
   extraEnvs:
     - name: DUMMY
-      value: "000"
+      value: "0001"
 
     - name: POD_NAME
       valueFrom:
