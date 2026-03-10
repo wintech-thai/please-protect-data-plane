@@ -24,7 +24,7 @@ logstash-transformer:
 
   extraEnvs:
     - name: LS_JAVA_OPTS
-      value: "-Xmx256m -Xms256m"
+      value: "-Xmx1g -Xms1g"
 
     - name: DUMMY
       value: "005"
