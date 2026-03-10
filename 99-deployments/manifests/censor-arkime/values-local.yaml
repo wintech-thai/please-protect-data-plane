@@ -2,7 +2,7 @@
 # Copy entire helm chart from https://github.com/arkime/helm
 fullnameOverride: "censor-arkime"
 ingress:
-  enabled: true
+  enabled: false
   host: "arkime.rtarf-censor.dev-hubs.com"
   tls:
     - hosts:

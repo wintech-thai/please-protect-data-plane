@@ -67,6 +67,21 @@ spec:
           - /bin/sh
           - -c
           - |
+              echo "Waiting for Elasticsearch to be ready..."
+
+              ES_USER="${ARKIME__elasticsearchBasicAuth%%:*}"
+              ES_PASSWORD="${ARKIME__elasticsearchBasicAuth#*:}"
+
+              until wget -qO- \
+                --user="$ES_USER" \
+                --password="$ES_PASSWORD" \
+                "${ARKIME__elasticsearch}/_cluster/health?wait_for_status=yellow&timeout=5s" \
+                | grep -q '"status":"\(yellow\|green\)"'; do
+                echo "Elasticsearch not ready yet... sleeping"
+                sleep 5
+              done
+              echo "Elasticsearch is UP and READY!"
+
               echo "===> Running Arkime init"
               /opt/arkime/db/db.pl --insecure ${ARKIME__elasticsearch} init --ifneeded
               echo "===> Creating admin user"
