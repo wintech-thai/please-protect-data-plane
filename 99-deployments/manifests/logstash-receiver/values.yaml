@@ -24,7 +24,7 @@ logstash-beat-receiver:
         fieldRef:
           fieldPath: metadata.name
 
-  logstashJavaOpts: "-Xms3g -Xmx3g"
+  logstashJavaOpts: "-Xms2g -Xmx2g"
   logstashConfig:
     logstash.yml: |
       http.host: "0.0.0.0"
