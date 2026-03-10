@@ -23,16 +23,15 @@ logstash-transformer:
       name: metrics
 
   extraEnvs:
-    - name: LS_JAVA_OPTS
-      value: "-Xmx1g -Xms1g"
-
     - name: DUMMY
-      value: "006"
+      value: "007"
 
     - name: POD_NAME
       valueFrom:
         fieldRef:
           fieldPath: metadata.name
+
+  logstashJavaOpts: "-Xms1g -Xmx1g"
 
   logstashConfig:
     logstash.yml: |
