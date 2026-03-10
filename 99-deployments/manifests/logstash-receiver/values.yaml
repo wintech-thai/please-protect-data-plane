@@ -16,9 +16,6 @@ logstash-beat-receiver:
       memory: "6Gi"
 
   extraEnvs:
-    - name: LS_JAVA_OPTS
-      value: "-Xmx3g -Xms3g"
-
     - name: DUMMY
       value: "000"
 
@@ -27,6 +24,7 @@ logstash-beat-receiver:
         fieldRef:
           fieldPath: metadata.name
 
+  logstashJavaOpts: "-Xms3g -Xmx3g"
   logstashConfig:
     logstash.yml: |
       http.host: "0.0.0.0"

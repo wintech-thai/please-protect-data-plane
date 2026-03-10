@@ -35,9 +35,6 @@ logstash-dispatcher-es:
           name: es-basic-authen
           key: password
 
-    - name: LS_JAVA_OPTS
-      value: "-Xmx256m -Xms256m"
-
     - name: DUMMY
       value: "000"
 
@@ -45,6 +42,8 @@ logstash-dispatcher-es:
       valueFrom:
         fieldRef:
           fieldPath: metadata.name
+
+  logstashJavaOpts: "-Xms1g -Xmx1g"
 
   logstashConfig:
     logstash.yml: |
