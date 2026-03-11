@@ -152,14 +152,7 @@ sensor:
   containers:
     capture:
       #command: ["/bin/sh", "-c", "/opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}"]
-      command:
-        - /bin/sh
-        - -c
-        - |
-          IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
-          echo "Detected interface: $IFACE"
-          export ARKIME__interface=$IFACE
-          exec /opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}
+      command: []
       env:
         #- name: ARKIME__interface
         #  value: "eth0"

@@ -32,95 +32,37 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "arkime.serviceAccountName" . }}
-
       {{- with .Values.sensor.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
       {{- with .Values.sensor.priorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
-
       {{- with .Values.sensor.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ . }}
       {{- end }}
-
       {{- with .Values.sensor.dnsPolicy }}
       dnsPolicy: {{ . }}
       {{- end }}
-
       {{- with .Values.sensor.dnsConfig }}
       dnsConfig:
         {{- toYaml . | nindent 8}}
       {{- end }}
-
       {{- if .Values.sensor.hostNetwork }}
       hostNetwork: true
       {{- end }}
-
       {{- with .Values.sensor.schedulerName }}
       schedulerName: {{ . | quote }}
       {{- end }}
-
       {{- with .Values.sensor.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
-      # ===============================
-      # INIT CONTAINER (fetch interfaces)
-      # ===============================
-      initContainers:
-        - name: fetch-interfaces
-          image: curlimages/curl:8.5.0
-          command:
-            - /bin/sh
-            - -c
-          args:
-            - |
-              set -e
-
-              IFACE_API="http://interface-manager-service.pp-system.svc.cluster.local/interfaces/enabled"
-              HEALTH_API="http://interface-manager-service.pp-system.svc.cluster.local/healthz"
-
-              echo "[*] Waiting for interface-manager..."
-
-              until curl -sf $HEALTH_API >/dev/null; do
-                echo "[*] interface-manager not ready..."
-                sleep 2
-              done
-
-              echo "[*] Fetching interfaces..."
-
-              IFACES=""
-              while [ -z "$IFACES" ]; do
-                IFACES=$(curl -s $IFACE_API)
-
-                if [ -z "$IFACES" ]; then
-                  echo "[*] No interfaces enabled yet..."
-                  sleep 2
-                fi
-              done
-
-              echo "$IFACES" > /shared/interfaces.txt
-
-              echo "[*] Interfaces saved:"
-              cat /shared/interfaces.txt
-
-          volumeMounts:
-            - name: iface-data
-              mountPath: /shared
-
       containers:
-
-        # ===============================
-        # ARKIME CAPTURE
-        # ===============================
         - name: arkime-capture
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
           securityContext:
             runAsNonRoot: false
             privileged: true
@@ -135,7 +77,6 @@ spec:
                 - NET_ADMIN
                 - IPC_LOCK
                 - NET_RAW
-
           env:
             - name: POD_IP
               valueFrom:
@@ -151,44 +92,28 @@ spec:
             {{- if .Values.env }}
               {{- toYaml .Values.env | nindent 12 }}
             {{- end }}
-
           command:
             - /bin/sh
             - -c
             - |
-              IFACES=$(cat /shared/interfaces.txt)
-
-              echo "Detected interfaces: $IFACES"
-
-              export ARKIME__interface=$(echo $IFACES | tr ' ' ',')
-
+              IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
+              echo "Detected interface: $IFACE"
+              export ARKIME__interface=$IFACE
               exec /opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}
-
           volumeMounts:
             - name: arkime-config
               mountPath: /opt/arkime/etc/
-
-            - name: iface-data
-              mountPath: /shared
-
             {{- if .Values.sensor.containers.capture.extraVolumeMounts }}
               {{- toYaml .Values.sensor.containers.capture.extraVolumeMounts | nindent 12 }}
             {{- end }}
-
             {{- toYaml .Values.captureViewerVolumes.volumeMounts | nindent 12 }}
-
           {{- with .Values.sensor.containers.capture.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-
-        # ===============================
-        # ARKIME VIEWER
-        # ===============================
         - name: arkime-viewer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
           env:
             - name: POD_IP
               valueFrom:
@@ -198,38 +123,29 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-
             {{- if .Values.sensor.containers.viewer.env }}
               {{- toYaml .Values.sensor.containers.viewer.env | nindent 12 }}
             {{- end }}
-
             {{- if .Values.env }}
               {{- toYaml .Values.env | nindent 12 }}
             {{- end }}
-
           command:
             {{- toYaml .Values.sensor.containers.viewer.command | nindent 12 }}
-
           volumeMounts:
             - name: arkime-config
               mountPath: /opt/arkime/etc/
-
             {{- if .Values.sensor.containers.viewer.extraVolumeMounts }}
               {{- toYaml .Values.sensor.containers.viewer.extraVolumeMounts | nindent 12 }}
             {{- end }}
-
           {{- toYaml .Values.captureViewerVolumes.volumeMounts | nindent 12 }}
-
           {{- with .Values.sensor.containers.viewer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-
           {{- with .Values.sensor.containers.viewer.ports }}
           ports:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-
           securityContext:
             seccompProfile:
               type: RuntimeDefault
@@ -238,17 +154,12 @@ spec:
             capabilities:
               drop:
                 - ALL
-
       volumes:
-        - name: arkime-config
-          configMap:
-            name: {{ include "arkime.fullname" . }}-config-map
-
-        - name: iface-data
-          emptyDir: {}
-
+      - name: arkime-config
+        configMap:
+          name: {{ include "arkime.fullname" . }}-config-map
       {{- toYaml .Values.captureViewerVolumes.volumes | nindent 6 }}
-
       {{- if .Values.sensor.extraVolumes }}
         {{- toYaml .Values.sensor.extraVolumes | nindent 6 }}
       {{- end }}
+      
