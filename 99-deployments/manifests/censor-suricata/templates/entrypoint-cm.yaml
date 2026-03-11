@@ -43,6 +43,7 @@ data:
         ARGS="$ARGS -i $i \
           --set af-packet.$INDEX.interface=$i \
           --set af-packet.$INDEX.cluster-id=$CLUSTER_ID \
+          --set af-packet.$INDEX.tpacket-v3=no" \
           --set af-packet.$INDEX.cluster-type=cluster_flow"
         
         CLUSTER_ID=$((CLUSTER_ID + 1))
