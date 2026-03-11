@@ -33,8 +33,15 @@ data:
     done
 
     ARGS=""
+    CLUSTER_ID=10  # เริ่มต้นที่ 10 หรือเลขใดก็ได้
+    
     for i in $IFACES; do
-      ARGS="$ARGS -i $i"
+      # เพิ่มพารามิเตอร์เพื่อ Override ค่า cluster-id ใน YAML ของแต่ละ interface
+      # โดยอ้างอิงตามชื่อ interface นั้นๆ
+      ARGS="$ARGS -i $i --set af-packet.$i.cluster-id=$CLUSTER_ID"
+      
+      # เพิ่มค่า CLUSTER_ID สำหรับ interface ถัดไป
+      CLUSTER_ID=$((CLUSTER_ID + 1))
     done
 
     echo "[*] Using interfaces: $IFACES"
