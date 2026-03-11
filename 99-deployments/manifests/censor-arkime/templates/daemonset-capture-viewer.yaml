@@ -107,7 +107,7 @@ spec:
                 if [ -z "$OUT" ]; then
                   OUT="$i"
                 else
-                  OUT="$OUT,$i"
+                  OUT="$OUT;$i"
                 fi
               done
 
