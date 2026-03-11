@@ -145,6 +145,8 @@ spec:
               # ใช้ sed เพื่อเปลี่ยนค่า LogDir ในไฟล์คอนฟิกหลัก
               sed -i "s|^LogDir =.*|LogDir = $ZEEK_LOG_DIR|g" $ZEEK_BASE/etc/zeekctl.cfg
 
+              $ZEEK_BASE/bin/zeekctl cleanup # ล้างสถานะเก่าที่อาจค้างอยู่
+
               # 3. สั่ง Deploy และรัน
               echo "[*] Deploying Zeek with interfaces: $IFACES"
               $ZEEK_BASE/bin/zeekctl install
@@ -154,6 +156,10 @@ spec:
 
               # เริ่มทำงานในโหมด foreground เพื่อให้ Container ไม่จบการทำงาน
               exec $ZEEK_BASE/bin/zeekctl start
+
+              echo "[*] Zeek is running..."
+              # รั้ง Process ไว้ไม่ให้ Completed
+              exec tail -f $ZEEK_BASE/logs/current/conn.log
 
           resources:
             requests:
