@@ -23,7 +23,7 @@ spec:
 
         command:
           - ruby
-          - interface-manager.rb
+          - /app/interface-manager.rb
 
         ports:
         - containerPort: 8080
