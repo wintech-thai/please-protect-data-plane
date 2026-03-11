@@ -1,6 +1,6 @@
 image:
   name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/interface-manager
-  tag: v0.0.2
+  tag: develop-845358c
 
 configs: {}
 replica: 1
