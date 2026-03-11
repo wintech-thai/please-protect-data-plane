@@ -20,13 +20,34 @@ data:
     # Capture
     # ======================
     af-packet:
-      - interface: eth0
+      # ต้อง alocate ไว้ก่อน ให้พอดีกับจำนวน interface ที่จะจับ (ในที่นี้คือ 4) ถ้าไม่พอ จะทำให้ segmentation fault ได้
+      - interface: dummy1
         cluster-type: cluster_flow
         cluster-id: 99
         defrag: yes
         use-mmap: yes
         tpacket-v3: yes
 
+      - interface: dummy2
+        cluster-type: cluster_flow
+        cluster-id: 98
+        defrag: yes
+        use-mmap: yes
+        tpacket-v3: yes
+
+      - interface: dummy3
+        cluster-type: cluster_flow
+        cluster-id: 97
+        defrag: yes
+        use-mmap: yes
+        tpacket-v3: yes
+      
+      - interface: dummy4
+        cluster-type: cluster_flow
+        cluster-id: 96
+        defrag: yes
+        use-mmap: yes
+        tpacket-v3: yes
     # ======================
     # Rules
     # ======================
