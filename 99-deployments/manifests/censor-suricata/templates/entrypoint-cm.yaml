@@ -56,4 +56,6 @@ data:
       echo "[*] Rules already exist, skip update"
     fi
 
-    exec suricata ${ARGS} -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
+    #exec suricata ${ARGS} -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
+    
+    exec suricata -i $1 -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}

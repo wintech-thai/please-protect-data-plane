@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.suricataEth0.fullnameOverride }}
+  name: {{ .Values.suricataEth1.fullnameOverride }}
 spec:
-  serviceName: {{ .Values.suricataEth0.fullnameOverride }}
+  serviceName: {{ .Values.suricataEth1.fullnameOverride }}
   replicas: 1
   selector:
     matchLabels:
@@ -28,12 +28,12 @@ spec:
             - "/usr/share/filebeat/filebeat.yml"
           env:
             - name: DUMMY
-              value: "{{ .Values.suricataEth0.dummyVar }}"
+              value: "{{ .Values.suricataEth1.dummyVar }}"
           securityContext:
             runAsUser: 0
           volumeMounts:
             - name: suricata-logs
-              mountPath: {{ .Values.suricataEth0.logDir }}
+              mountPath: {{ .Values.suricataEth1.logDir }}
               readOnly: true
             - name: filebeat-config
               mountPath: /usr/share/filebeat/filebeat.yml
@@ -53,22 +53,22 @@ spec:
             - /bin/sh
             - -c
           args:
-            - "sh /entrypoint.sh ens4"
+            - "sh /entrypoint.sh ens5"
           resources:
             requests:
-              cpu: {{ .Values.suricataEth0.resources.requests.cpu }}
-              memory: {{ .Values.suricataEth0.resources.requests.memory }}
+              cpu: {{ .Values.suricataEth1.resources.requests.cpu }}
+              memory: {{ .Values.suricataEth1.resources.requests.memory }}
             limits:
-              cpu: {{ .Values.suricataEth0.resources.limits.cpu }}
-              memory: {{ .Values.suricataEth0.resources.limits.memory }}
+              cpu: {{ .Values.suricataEth1.resources.limits.cpu }}
+              memory: {{ .Values.suricataEth1.resources.limits.memory }}
 
           volumeMounts:
             - name: suricata-logs
-              mountPath: {{ .Values.suricataEth0.logDir }}
+              mountPath: {{ .Values.suricataEth1.logDir }}
 
             - name: config-volume
-              mountPath: /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
-              subPath: {{ .Values.suricataEth0.suricataConfigName }}
+              mountPath: /etc/suricata/{{ .Values.suricataEth1.suricataConfigName }}
+              subPath: {{ .Values.suricataEth1.suricataConfigName }}
 
             - name: config-script-volume
               mountPath: /entrypoint.sh

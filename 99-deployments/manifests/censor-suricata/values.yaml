@@ -17,3 +17,23 @@ suricataEth0:
   logstash:
     host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
     port: 5044
+
+suricataEth1:
+  enabled: true
+  fullnameOverride: suricata-eth1
+  interfaceName: "" # This will be auto-detected in the entrypoint script
+  logDir: /suricata-logs
+  suricataConfigName: suricata.yaml
+  dummyVar: "006"
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+  logstash:
+    host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
+    port: 5044
