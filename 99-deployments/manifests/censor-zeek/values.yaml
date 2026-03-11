@@ -17,23 +17,3 @@ zeekEth0:
   logstash:
     host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
     port: 5044
-
-zeekEth1:
-  enabled: true
-  fullnameOverride: zeek-eth1
-  interfaceName: "" # not used, will be auto-detected in the entrypoint script
-  logDir: /usr/local/zeek/logs
-  zeeConfigName: custom_logs.zeek
-  dummyVar: "001"
-
-  resources:
-    requests:
-      cpu: "500m"
-      memory: 1Gi
-    limits:
-      cpu: "1"
-      memory: 2Gi
-
-  logstash:
-    host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
-    port: 5044
