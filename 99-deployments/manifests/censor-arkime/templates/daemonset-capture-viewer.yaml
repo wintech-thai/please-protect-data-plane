@@ -93,17 +93,16 @@ spec:
 
               echo "[*] Fetching interfaces..."
 
-              IFACES=""
-              while [ -z "$IFACES" ]; do
-                IFACES=$(curl -s $IFACE_API)
-
-                if [ -z "$IFACES" ]; then
-                  echo "[*] No interfaces enabled yet..."
-                  sleep 2
+              OUT=""
+              for i in $IFACES; do
+                if [ -z "$OUT" ]; then
+                  OUT="$i"
+                else
+                  OUT="$OUT,$i"
                 fi
               done
 
-              echo "$IFACES" > /shared/interfaces.txt
+              echo "$OUT" > /shared/interfaces.txt
 
               echo "[*] Interfaces saved:"
               cat /shared/interfaces.txt
