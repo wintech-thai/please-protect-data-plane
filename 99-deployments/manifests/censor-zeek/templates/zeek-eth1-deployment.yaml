@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.zeekEth0.fullnameOverride }}
+  name: {{ .Values.zeekEth1.fullnameOverride }}
 spec:
   replicas: 1
   selector:
@@ -74,14 +74,14 @@ spec:
 
           env:
             - name: DUMMY
-              value: "{{ .Values.zeekEth0.dummyVar }}"
+              value: "{{ .Values.zeekEth1.dummyVar }}"
 
           securityContext:
             runAsUser: 0
 
           volumeMounts:
             - name: zeek-logs
-              mountPath: {{ .Values.zeekEth0.logDir }}
+              mountPath: {{ .Values.zeekEth1.logDir }}
               readOnly: true
 
             - name: filebeat-config
@@ -112,28 +112,28 @@ spec:
           args:
             - |
               set -e
-              export ZEEK_LOG_DIR={{ .Values.zeekEth0.logDir }}/current
+              export ZEEK_LOG_DIR={{ .Values.zeekEth1.logDir }}/current
 
               mkdir -p $ZEEK_LOG_DIR
               echo "Log dir = $ZEEK_LOG_DIR"
 
-              exec zeek -i af_packet::ens4 -C local /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
+              exec zeek -i af_packet::ens5 -C local /etc/zeek/site/{{ .Values.zeekEth1.zeeConfigName }}
 
           resources:
             requests:
-              cpu: {{ .Values.zeekEth0.resources.requests.cpu }}
-              memory: {{ .Values.zeekEth0.resources.requests.memory }}
+              cpu: {{ .Values.zeekEth1.resources.requests.cpu }}
+              memory: {{ .Values.zeekEth1.resources.requests.memory }}
             limits:
-              cpu: {{ .Values.zeekEth0.resources.limits.cpu }}
-              memory: {{ .Values.zeekEth0.resources.limits.memory }}
+              cpu: {{ .Values.zeekEth1.resources.limits.cpu }}
+              memory: {{ .Values.zeekEth1.resources.limits.memory }}
 
           volumeMounts:
             - name: zeek-logs
-              mountPath: {{ .Values.zeekEth0.logDir }}
+              mountPath: {{ .Values.zeekEth1.logDir }}
 
             - name: config-volume
-              mountPath: /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
-              subPath: {{ .Values.zeekEth0.zeeConfigName }}
+              mountPath: /etc/zeek/site/{{ .Values.zeekEth1.zeeConfigName }}
+              subPath: {{ .Values.zeekEth1.zeeConfigName }}
 
             - name: iface-data
               mountPath: /shared
