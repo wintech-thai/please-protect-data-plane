@@ -1,6 +1,6 @@
 image:
   name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/interface-manager
-  tag: develop-a7d150c
+  tag: v0.0.3
 
 configs: {}
 replica: 1
