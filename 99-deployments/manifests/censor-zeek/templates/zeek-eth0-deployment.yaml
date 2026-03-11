@@ -66,10 +66,39 @@ spec:
             - |
               set -e
               export ZEEK_LOG_DIR={{ .Values.zeekEth0.logDir }}/current
-              IFACE=$(ls /sys/class/net | grep -Ev '^(lo|cni|flannel|docker|veth)' | head -n1)
+
+              IFACE_API="http://interface-manager-service.pp-system.svc.cluster.local/interfaces/enabled"
+              HEALTH_API="http://interface-manager-service.pp-system.svc.cluster.local/healthz"
+
               mkdir -p $ZEEK_LOG_DIR
               echo "Log dir = $ZEEK_LOG_DIR"
-              zeek -i af_packet::${IFACE} -C local /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
+              echo "[*] Waiting for interface-manager..."
+
+              until curl -sf $HEALTH_API >/dev/null; do
+                echo "[*] interface-manager not ready..."
+                sleep 2
+              done
+
+              echo "[*] Fetching interfaces..."
+
+              IFACES=""
+              while [ -z "$IFACES" ]; do
+                IFACES=$(curl -s $IFACE_API)
+                if [ -z "$IFACES" ]; then
+                  echo "[*] No interfaces enabled yet, waiting..."
+                  sleep 2
+                fi
+              done
+
+              ARGS=""
+              for i in $IFACES; do
+                ARGS="$ARGS -i af_packet::$i"
+              done
+
+              echo "[*] Using interfaces: $IFACES"
+              echo "[*] Using arguments: $ARGS"
+
+              exec zeek $ARGS -C local /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
 
           resources:
             requests:
