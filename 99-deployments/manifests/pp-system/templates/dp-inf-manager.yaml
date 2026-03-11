@@ -1,29 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iface-manager
+  name: interface-manager
 spec:
   replicas: {{ .Values.replica }}
   revisionHistoryLimit: 1
 
   selector:
     matchLabels:
-      app: iface-manager
+      app: interface-manager
 
   template:
     metadata:
       labels:
-        app: iface-manager
+        app: interface-manager
 
     spec:
       containers:
-      - name: iface-manager
+      - name: interface-manager
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         imagePullPolicy: Always
 
         command:
           - ruby
-          - /app/iface-manager.rb
+          - /app/interface-manager.rb
 
         ports:
         - containerPort: 8080
@@ -68,5 +68,5 @@ spec:
 
       - name: data
         hostPath:
-          path: /data/iface-manager
+          path: /data/interface-manager
           type: DirectoryOrCreate
