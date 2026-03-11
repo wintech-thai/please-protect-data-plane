@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.zeekEth0.fullnameOverride }}
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: zeek
@@ -105,7 +105,7 @@ spec:
               add:
                 - NET_RAW
                 - NET_ADMIN
-
+                - IPC_LOCK # อนุญาตให้ทำ Memory Locking
           command:
             - /bin/sh
             - -c

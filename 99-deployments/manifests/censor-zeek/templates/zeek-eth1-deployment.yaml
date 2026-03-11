@@ -105,6 +105,7 @@ spec:
               add:
                 - NET_RAW
                 - NET_ADMIN
+                - IPC_LOCK # อนุญาตให้ทำ Memory Locking
 
           command:
             - /bin/sh
