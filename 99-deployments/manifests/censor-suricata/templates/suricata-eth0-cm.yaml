@@ -27,19 +27,20 @@ data:
         use-mmap: yes
         tpacket-v3: yes
 
-      - interface: ens4
-        cluster-type: cluster_flow
-        cluster-id: 20
-        defrag: yes
-        use-mmap: yes
-        tpacket-v3: no
+    #  - interface: ens4
+    #    cluster-type: cluster_flow
+    #    cluster-id: 20
+    #    defrag: yes
+    #    use-mmap: yes
+    #    tpacket-v3: no
 
-      - interface: ens5
-        cluster-type: cluster_flow
-        cluster-id: 21
-        defrag: yes
-        use-mmap: yes
-        tpacket-v3: no
+    #  - interface: ens5
+    #    cluster-type: cluster_flow
+    #    cluster-id: 21
+    #    defrag: yes
+    #    use-mmap: yes
+    #    tpacket-v3: no
+
     # ======================
     # Rules
     # ======================
