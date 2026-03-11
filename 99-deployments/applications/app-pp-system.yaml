@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: pp-system
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          custom: "true"
+  template:
+    metadata:
+      name: 'pp-system-{{name}}'
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/wintech-thai/please-protect-data-plane.git
+        targetRevision: "{{name}}" #Based on environment
+        path: '99-deployments/manifests/pp-system'
+      destination:
+        name: in-cluster
+        namespace: pp-system
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
