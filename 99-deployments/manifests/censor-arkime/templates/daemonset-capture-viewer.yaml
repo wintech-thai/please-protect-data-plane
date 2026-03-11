@@ -168,9 +168,9 @@ spec:
 
               echo "Detected interfaces: $IFACES"
 
-              export ARKIME__interface=$(echo $IFACES | tr ' ' ',')
+              export ARKIME__interface=$(echo $IFACES | tr ' ' ';')
 
-              exec /opt/arkime/bin/docker.sh capture --insecure --host ${POD_IP} --node ${NODE_NAME}
+              exec /opt/arkime/bin/docker.sh capture -i "$ARKIME__interface" --insecure --host ${POD_IP} --node ${NODE_NAME}
 
           volumeMounts:
             - name: arkime-config
