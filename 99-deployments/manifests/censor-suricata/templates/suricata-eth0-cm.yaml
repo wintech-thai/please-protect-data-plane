@@ -29,14 +29,14 @@ data:
 
       - interface: ens4
         cluster-type: cluster_flow
-        cluster-id: 99
+        cluster-id: 10
         defrag: yes
         use-mmap: yes
         tpacket-v3: no
 
       - interface: ens5
         cluster-type: cluster_flow
-        cluster-id: 99
+        cluster-id: 11
         defrag: yes
         use-mmap: yes
         tpacket-v3: no
