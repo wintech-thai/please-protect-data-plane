@@ -16,6 +16,7 @@ spec:
         app: interface-manager
 
     spec:
+      hostNetwork: true
       containers:
       - name: interface-manager
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
