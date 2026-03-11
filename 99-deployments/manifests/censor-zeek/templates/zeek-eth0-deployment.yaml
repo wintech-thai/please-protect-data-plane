@@ -119,18 +119,20 @@ spec:
               echo "[*] Starting Zeek for interfaces: $IFACES"
 
               for i in $IFACES; do
-                echo "[*] Launching Zeek worker for interface: $i"
-                
-                # สร้างโฟลเดอร์เก็บ log แยกตาม interface เพื่อไม่ให้ไฟล์ตีกัน
-                mkdir -p $ZEEK_LOG_DIR/$i
-                
-                # รัน zeek ตรงๆ โดยระบุ LogDir แยกกัน
-                # -C คือ ignore checksum (เหมาะกับ sniffing)
-                # & คือสั่งรันเป็น background
-                zeek -i af_packet::$i \
-                    -C local \
-                    /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }} \
-                    Log::default_logdir=$ZEEK_LOG_DIR/$i &
+                  echo "[*] Launching Zeek worker for interface: $i"
+                  IFACE_DIR="$ZEEK_LOG_DIR/$i"
+                  mkdir -p "$IFACE_DIR"
+                  
+                  # รันใน Subshell และเปลี่ยน Directory ก่อนรัน
+                  (
+                      cd "$IFACE_DIR"
+                      exec zeek -i af_packet::$i \
+                          -C local \
+                          /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }} \
+                          Log::default_logdir="$IFACE_DIR"
+                  ) > "$IFACE_DIR/stdout.log" 2>&1 &
+                  
+                  sleep 2 # ให้เวลาระบบจัดการ Socket และ Lock file เล็กน้อยก่อนเริ่มตัวถัดไป
               done
 
               echo "[*] All workers launched. Monitoring..."
