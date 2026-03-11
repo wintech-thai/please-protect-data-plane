@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.zeekEth0.fullnameOverride }}
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: zeek
