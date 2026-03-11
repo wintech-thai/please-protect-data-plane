@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.zeekEth1.fullnameOverride }}
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: zeek
@@ -113,7 +113,7 @@ spec:
           args:
             - |
               set -e
-              export ZEEK_LOG_DIR={{ .Values.zeekEth1.logDir }}/current/ens5
+              export ZEEK_LOG_DIR={{ .Values.zeekEth1.logDir }}/current
 
               mkdir -p $ZEEK_LOG_DIR
               echo "Log dir = $ZEEK_LOG_DIR"
