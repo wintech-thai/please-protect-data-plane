@@ -118,7 +118,7 @@ spec:
               mkdir -p $ZEEK_LOG_DIR
               echo "Log dir = $ZEEK_LOG_DIR"
 
-              exec zeek -i af_packet::ens5 -C local /etc/zeek/site/{{ .Values.zeekEth1.zeeConfigName }}
+              exec zeek -i af_packet::ens5 -C local /etc/zeek/site/{{ .Values.zeekEth1.zeeConfigName }} -e "redef AF_Packet::fanout_id = 10;"
 
           resources:
             requests:
