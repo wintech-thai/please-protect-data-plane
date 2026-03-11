@@ -92,6 +92,15 @@ spec:
               done
 
               echo "[*] Fetching interfaces..."
+              IFACES=""
+              while [ -z "$IFACES" ]; do
+                IFACES=$(curl -s $IFACE_API)
+
+                if [ -z "$IFACES" ]; then
+                  echo "[*] No interfaces enabled yet..."
+                  sleep 2
+                fi
+              done
 
               OUT=""
               for i in $IFACES; do
