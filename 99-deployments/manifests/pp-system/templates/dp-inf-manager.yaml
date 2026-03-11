@@ -16,6 +16,8 @@ spec:
         app: interface-manager
 
     spec:
+      strategy:
+        type: Recreate
       hostNetwork: true
       containers:
       - name: interface-manager
