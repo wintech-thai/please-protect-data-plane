@@ -7,118 +7,118 @@ data:
     - module: zeek
       capture_loss:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/capture_loss.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/capture_loss.log"]
       connection:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/conn.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/conn.log"]
       dce_rpc:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/dce_rpc.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/dce_rpc.log"]
       dhcp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/dhcp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/dhcp.log"]
       dnp3:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/dnp3.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/dnp3.log"]
       dns:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/dns.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/dns.log"]
       dpd:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/dpd.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/dpd.log"]
       files:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/files.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/files.log"]
       ftp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/ftp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/ftp.log"]
       http:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/http.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/http.log"]
       intel:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/intel.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/intel.log"]
       irc:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/irc.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/irc.log"]
       kerberos:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/kerberos.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/kerberos.log"]
       modbus:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/modbus.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/modbus.log"]
       mysql:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/mysql.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/mysql.log"]
       notice:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/notice.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/notice.log"]
       ntlm:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/ntlm.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/ntlm.log"]
       ntp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/ntp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/ntp.log"]
       ocsp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/oscp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/oscp.log"]
       pe:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/pe.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/pe.log"]
       radius:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/radius.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/radius.log"]
       rdp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/rdp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/rdp.log"]
       rfb:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/rfb.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/rfb.log"]
       signature:
         enabled: false
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/signature.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/signature.log"]
       sip:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/sip.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/sip.log"]
       smb_cmd:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/smb_cmd.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/smb_cmd.log"]
       smb_files:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/smb_files.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/smb_files.log"]
       smb_mapping:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/smb_mapping.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/smb_mapping.log"]
       smtp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/smtp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/smtp.log"]
       snmp:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/snmp.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/snmp.log"]
       socks:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/socks.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/socks.log"]
       ssh:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/ssh.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/ssh.log"]
       ssl:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/ssl.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/ssl.log"]
       stats:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/stats.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/stats.log"]
       syslog:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/syslog.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/syslog.log"]
       traceroute:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/traceroute.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/traceroute.log"]
       tunnel:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/tunnel.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/tunnel.log"]
       weird:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/weird.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/weird.log"]
       x509:
         enabled: true
-        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/x509.log"]
+        var.paths: ["{{ .Values.zeekEth0.logDir }}/current/*/x509.log"]
