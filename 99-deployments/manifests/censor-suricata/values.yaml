@@ -4,7 +4,7 @@ suricataEth0:
   interfaceName: "" # This will be auto-detected in the entrypoint script
   logDir: /suricata-logs
   suricataConfigName: suricata.yaml
-  dummyVar: "016"
+  dummyVar: "017"
 
   resources:
     requests:
