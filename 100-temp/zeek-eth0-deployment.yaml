@@ -15,6 +15,50 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
 
+      # ======================
+      # Init container
+      # ======================
+      initContainers:
+        - name: fetch-interfaces
+          image: curlimages/curl:8.5.0
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -e
+
+              IFACE_API="http://interface-manager-service.pp-system.svc.cluster.local/interfaces/enabled"
+              HEALTH_API="http://interface-manager-service.pp-system.svc.cluster.local/healthz"
+
+              echo "[*] Waiting for interface-manager..."
+
+              until curl -sf $HEALTH_API >/dev/null; do
+                echo "[*] interface-manager not ready..."
+                sleep 2
+              done
+
+              echo "[*] Fetching interfaces..."
+
+              IFACES=""
+              while [ -z "$IFACES" ]; do
+                IFACES=$(curl -s $IFACE_API)
+
+                if [ -z "$IFACES" ]; then
+                  echo "[*] No interfaces enabled yet..."
+                  sleep 2
+                fi
+              done
+
+              echo "$IFACES" > /shared/interfaces.txt
+
+              echo "[*] Interfaces saved:"
+              cat /shared/interfaces.txt
+
+          volumeMounts:
+            - name: iface-data
+              mountPath: /shared
+
       containers:
         # ======================
         # Filebeat sidecar
@@ -48,7 +92,9 @@ spec:
               mountPath: /usr/share/filebeat/modules.d
               readOnly: true
 
-        ##### Zeek #####
+        # ======================
+        # Zeek
+        # ======================
         - name: zeek
           image: zeek/zeek:8.0.4
           imagePullPolicy: IfNotPresent
@@ -59,6 +105,7 @@ spec:
               add:
                 - NET_RAW
                 - NET_ADMIN
+
           command:
             - /bin/sh
             - -c
@@ -67,28 +114,10 @@ spec:
               set -e
               export ZEEK_LOG_DIR={{ .Values.zeekEth0.logDir }}/current
 
-              IFACE_API="http://interface-manager-service.pp-system.svc.cluster.local/interfaces/enabled"
-              HEALTH_API="http://interface-manager-service.pp-system.svc.cluster.local/healthz"
-
               mkdir -p $ZEEK_LOG_DIR
               echo "Log dir = $ZEEK_LOG_DIR"
-              echo "[*] Waiting for interface-manager..."
 
-              until curl -sf $HEALTH_API >/dev/null; do
-                echo "[*] interface-manager not ready..."
-                sleep 2
-              done
-
-              echo "[*] Fetching interfaces..."
-
-              IFACES=""
-              while [ -z "$IFACES" ]; do
-                IFACES=$(curl -s $IFACE_API)
-                if [ -z "$IFACES" ]; then
-                  echo "[*] No interfaces enabled yet, waiting..."
-                  sleep 2
-                fi
-              done
+              IFACES=$(cat /shared/interfaces.txt)
 
               ARGS=""
               for i in $IFACES; do
@@ -116,6 +145,9 @@ spec:
               mountPath: /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
               subPath: {{ .Values.zeekEth0.zeeConfigName }}
 
+            - name: iface-data
+              mountPath: /shared
+
       volumes:
         - name: zeek-logs
           emptyDir: {}
@@ -131,3 +163,6 @@ spec:
         - name: filebeat-modules
           configMap:
             name: filebeat-modules
+
+        - name: iface-data
+          emptyDir: {}

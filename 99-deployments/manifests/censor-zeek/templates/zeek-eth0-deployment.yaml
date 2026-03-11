@@ -112,6 +112,10 @@ spec:
           args:
             - |
               set -e
+
+              # กำหนด Path หลักของ Zeek
+              ZEEK_BASE="/usr/local/zeek"
+              # กำหนดที่เก็บ Log ตามที่คุณตั้งค่าใน Helm
               export ZEEK_LOG_DIR={{ .Values.zeekEth0.logDir }}/current
 
               mkdir -p $ZEEK_LOG_DIR
@@ -119,15 +123,37 @@ spec:
 
               IFACES=$(cat /shared/interfaces.txt)
 
-              ARGS=""
+              # 1. สร้าง node.cfg ใหม่ทุกครั้งที่ Start (เพื่อให้ Dynamic ตาม interface ที่พบ)
+              echo "[manager]
+              type=manager
+              host=localhost
+
+              [proxy-1]
+              type=proxy
+              host=localhost" > $ZEEK_BASE/etc/node.cfg
+
+              count=1
               for i in $IFACES; do
-                ARGS="$ARGS -i af_packet::$i"
+                echo "[worker-$count]
+              type=worker
+              host=localhost
+              interface=af_packet::$i" >> $ZEEK_BASE/etc/node.cfg
+                count=$((count+1))
               done
 
-              echo "[*] Using interfaces: $IFACES"
-              echo "[*] Using arguments: $ARGS"
+              # 2. ปรับแต่ง zeekctl.cfg ให้ Log ไปลงที่ Volume ของคุณ
+              # ใช้ sed เพื่อเปลี่ยนค่า LogDir ในไฟล์คอนฟิกหลัก
+              sed -i "s|^LogDir =.*|LogDir = $ZEEK_LOG_DIR|g" $ZEEK_BASE/etc/zeekctl.cfg
 
-              exec zeek $ARGS -C local /etc/zeek/site/{{ .Values.zeekEth0.zeeConfigName }}
+              # 3. สั่ง Deploy และรัน
+              echo "[*] Deploying Zeek with interfaces: $IFACES"
+              $ZEEK_BASE/bin/zeekctl install
+
+              # ใช้คำสั่ง cron เพื่อให้ Zeek ทำการหมุนไฟล์ Log และเช็คสถานะตัวเองเรื่อยๆ
+              $ZEEK_BASE/bin/zeekctl cron enable
+
+              # เริ่มทำงานในโหมด foreground เพื่อให้ Container ไม่จบการทำงาน
+              exec $ZEEK_BASE/bin/zeekctl start
 
           resources:
             requests:
