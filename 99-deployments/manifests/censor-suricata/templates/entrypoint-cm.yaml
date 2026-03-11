@@ -33,15 +33,20 @@ data:
     done
 
     ARGS=""
-    CLUSTER_ID=10  # เริ่มต้นที่ 10 หรือเลขใดก็ได้
-    
+    INDEX=0
+    CLUSTER_ID=20
+
     for i in $IFACES; do
-      # เพิ่มพารามิเตอร์เพื่อ Override ค่า cluster-id ใน YAML ของแต่ละ interface
-      # โดยอ้างอิงตามชื่อ interface นั้นๆ
-      ARGS="$ARGS -i $i --set af-packet.$i.cluster-id=$CLUSTER_ID"
-      
-      # เพิ่มค่า CLUSTER_ID สำหรับ interface ถัดไป
-      CLUSTER_ID=$((CLUSTER_ID + 1))
+        echo "[*] Mapping $i to af-packet index $INDEX with Cluster ID $CLUSTER_ID"
+        
+        # ต้องระบุทับทั้ง interface และ cluster-id ใน index นั้นๆ
+        ARGS="$ARGS -i $i \
+          --set af-packet.$INDEX.interface=$i \
+          --set af-packet.$INDEX.cluster-id=$CLUSTER_ID \
+          --set af-packet.$INDEX.cluster-type=cluster_flow"
+        
+        CLUSTER_ID=$((CLUSTER_ID + 1))
+        INDEX=$((INDEX + 1))
     done
 
     echo "[*] Using interfaces: $IFACES"
@@ -56,6 +61,7 @@ data:
       echo "[*] Rules already exist, skip update"
     fi
 
-    #exec suricata ${ARGS} -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
+    echo "[*] Final Check - Memlock Limit: $(ulimit -l)"
+    exec suricata ${ARGS} -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
     
-    exec suricata -i $1 -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}
+    #exec suricata -i $1 -c /etc/suricata/{{ .Values.suricataEth0.suricataConfigName }}

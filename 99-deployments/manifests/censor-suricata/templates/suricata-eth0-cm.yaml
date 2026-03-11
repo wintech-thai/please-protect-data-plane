@@ -19,27 +19,13 @@ data:
     # ======================
     # Capture
     # ======================
-    af-packet:
-      - interface: eth0
-        cluster-type: cluster_flow
-        cluster-id: 99
-        defrag: yes
-        use-mmap: yes
-        tpacket-v3: yes
-
-    #  - interface: ens4
+    af-packet: []
+    #  - interface: eth0
     #    cluster-type: cluster_flow
-    #    cluster-id: 20
+    #    cluster-id: 99
     #    defrag: yes
     #    use-mmap: yes
-    #    tpacket-v3: no
-
-    #  - interface: ens5
-    #    cluster-type: cluster_flow
-    #    cluster-id: 21
-    #    defrag: yes
-    #    use-mmap: yes
-    #    tpacket-v3: no
+    #    tpacket-v3: yes
 
     # ======================
     # Rules

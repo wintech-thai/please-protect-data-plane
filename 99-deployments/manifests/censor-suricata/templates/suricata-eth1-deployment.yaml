@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.suricataEth1.fullnameOverride }}
 spec:
   serviceName: {{ .Values.suricataEth1.fullnameOverride }}
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: suricata
