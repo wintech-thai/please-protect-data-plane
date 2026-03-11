@@ -247,8 +247,8 @@ spec:
         - name: iface-data
           emptyDir: {}
 
-      {{- toYaml .Values.captureViewerVolumes.volumes | nindent 6 }}
+        {{- toYaml .Values.captureViewerVolumes.volumes | nindent 6 }}
 
-      {{- if .Values.sensor.extraVolumes }}
-        {{- toYaml .Values.sensor.extraVolumes | nindent 6 }}
-      {{- end }}
+        {{- if .Values.sensor.extraVolumes }}
+          {{- toYaml .Values.sensor.extraVolumes | nindent 6 }}
+        {{- end }}
