@@ -10,7 +10,7 @@ logstash-auditlog:
 
   extraEnvs:
     - name: DUMMY_FOR_RESTART #If need to restart pod manually then change this
-      value: "000"
+      value: "001"
 
     - name: LS_JAVA_OPTS
       value: "-Xmx512m -Xms512m"
