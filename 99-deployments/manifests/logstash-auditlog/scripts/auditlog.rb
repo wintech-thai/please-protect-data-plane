@@ -32,7 +32,7 @@ def populate_ts_aggregate(event)
     event.set('cust_ts_wd', dtm.wday.to_s.rjust(2,'0'))
 end
 
-def extract_common_fields(event)
+def extract_common_fields_api(event)
     path = event.get("Path")
     obj = Hash.new
 
@@ -54,10 +54,14 @@ end
 
 def filter(event)
     event.remove("headers")
+    auditType = event.get('AuditType')
 
     populate_ts_aggregate(event)
-    extract_common_fields(event)
-    
+
+    if (auditType == 'API')
+        extract_common_fields_api(event)
+    end
+
     ts = event.get('@timestamp')
     cust_ts_yyyy = event.get('cust_ts_yyyy')
     cust_ts_mm = event.get('cust_ts_mm')
@@ -65,7 +69,12 @@ def filter(event)
 
     create_fields_from_json(event, 'data')
 
-    full_index_name = "pp-#{cust_ts_yyyy}-#{cust_ts_mm}-#{cust_ts_dd}"
+    if (auditType == 'API')
+        full_index_name = "pp-#{cust_ts_yyyy}-#{cust_ts_mm}-#{cust_ts_dd}"
+    elsif (auditType == 'CloudConnect')
+        full_index_name = "cc-#{cust_ts_yyyy}-#{cust_ts_mm}-#{cust_ts_dd}"
+    end
+
     event.set('index_name', full_index_name)
     event.set('@timestamp', ts)
 
