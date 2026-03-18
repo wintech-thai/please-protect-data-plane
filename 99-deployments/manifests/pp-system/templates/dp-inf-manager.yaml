@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: interface-manager
 spec:
-  replicas: {{ .Values.replica }}
+  replicas: {{ .Values.ifm.replica }}
   revisionHistoryLimit: 1
   strategy:
     type: Recreate
@@ -21,7 +21,7 @@ spec:
       hostNetwork: true
       containers:
       - name: interface-manager
-        image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        image: {{ .Values.ifm.image.name }}:{{ .Values.ifm.image.tag }}
         imagePullPolicy: Always
 
         command:
@@ -33,11 +33,11 @@ spec:
 
         resources:
           requests:
-            memory: "{{ .Values.resources.requests.memory }}"
-            cpu: "{{ .Values.resources.requests.cpu }}"
+            memory: "{{ .Values.ifm.resources.requests.memory }}"
+            cpu: "{{ .Values.ifm.resources.requests.cpu }}"
           limits:
-            memory: "{{ .Values.resources.limits.memory }}"
-            cpu: "{{ .Values.resources.limits.cpu }}"
+            memory: "{{ .Values.ifm.resources.limits.memory }}"
+            cpu: "{{ .Values.ifm.resources.limits.cpu }}"
 
         securityContext:
           runAsUser: 0

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: git-sync
+spec:
+  replicas: {{ .Values.gs.replica }}
+  revisionHistoryLimit: 1
+  strategy:
+    type: Recreate
+
+  selector:
+    matchLabels:
+      app: git-sync
+
+  template:
+    metadata:
+      labels:
+        app: git-sync
+
+    spec:
+      hostNetwork: true
+      containers:
+      - name: git-sync
+        image: {{ .Values.gs.image.name }}:{{ .Values.gs.image.tag }}
+        imagePullPolicy: Always
+
+        command:
+          - ruby
+          - /app/git-sync.rb
+
+        ports:
+        - containerPort: 8080
+
+        resources:
+          requests:
+            memory: "{{ .Values.gs.resources.requests.memory }}"
+            cpu: "{{ .Values.gs.resources.requests.cpu }}"
+          limits:
+            memory: "{{ .Values.gs.resources.limits.memory }}"
+            cpu: "{{ .Values.gs.resources.limits.cpu }}"
+
+        volumeMounts:
+        - name: data
+          mountPath: /data
+
+      volumes:
+        - name: data
+          emptyDir: {}

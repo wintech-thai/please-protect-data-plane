@@ -1,14 +1,30 @@
-image:
-  name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/interface-manager
-  tag: v0.0.3
+ifm:
+  image:
+    name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/interface-manager
+    tag: v0.0.3
 
-configs: {}
-replica: 1
+  configs: {}
+  replica: 1
 
-resources:
-  requests:
-    memory: "100Mi"
-    cpu: "100m"
-  limits:
-    memory: "200Mi"
-    cpu: "150m"
+  resources:
+    requests:
+      memory: "100Mi"
+      cpu: "100m"
+    limits:
+      memory: "200Mi"
+      cpu: "150m"
+
+gs:
+  image:
+    name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/git-sync
+    tag: v0.0.1
+
+  replica: 1
+
+  resources:
+    requests:
+      memory: "50Mi"
+      cpu: "100m"
+    limits:
+      memory: "200Mi"
+      cpu: "150m"

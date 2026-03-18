@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: git-sync-service
+  labels:
+    app: git-sync
+spec:
+  type: ClusterIP
+  selector:
+    app: git-sync # ต้องตรงกับ matchLabels ใน Deployment
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80       # Port ที่ Service จะเปิดให้คนอื่นเรียก
+      targetPort: 4567 # Port ที่แอป Ruby รันอยู่จริงๆ ใน Container
