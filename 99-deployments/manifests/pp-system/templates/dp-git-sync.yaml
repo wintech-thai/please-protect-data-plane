@@ -18,7 +18,6 @@ spec:
         app: git-sync
 
     spec:
-      hostNetwork: true
       containers:
       - name: git-sync
         image: {{ .Values.gs.image.name }}:{{ .Values.gs.image.tag }}
@@ -29,7 +28,7 @@ spec:
           - /app/git-sync.rb
 
         ports:
-        - containerPort: 8080
+        - containerPort: 4567
 
         resources:
           requests:
