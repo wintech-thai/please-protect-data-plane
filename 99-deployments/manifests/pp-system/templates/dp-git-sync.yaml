@@ -1,47 +1,117 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: CronJob
 metadata:
   name: git-sync
 spec:
-  replicas: {{ .Values.gs.replica }}
-  revisionHistoryLimit: 1
-  strategy:
-    type: Recreate
+  schedule: "0 * * * *" # ตั้งไปงั้นๆ (ยังไม่ใช้)
+  suspend: true         # << สำคัญ: หยุดไว้ก่อน
 
-  selector:
-    matchLabels:
-      app: git-sync
-
-  template:
-    metadata:
-      labels:
-        app: git-sync
-
+  jobTemplate:
     spec:
-      containers:
-      - name: git-sync
-        image: {{ .Values.gs.image.name }}:{{ .Values.gs.image.tag }}
-        imagePullPolicy: Always
+      template:
+        metadata:
+          labels:
+            app: git-sync
+        spec:
+          restartPolicy: Never
 
-        command:
-          - ruby
-          - /app/git-sync.rb
+          containers:
+          - name: git-sync
+            image: {{ .Values.gs.image.name }}:{{ .Values.gs.image.tag }}
+            imagePullPolicy: Always
 
-        ports:
-        - containerPort: 4567
+            command:
+              - /bin/sh
+              - -c
+              - |
+                export GIT_DEST_TOKEN="$GITEA_USERNAME:$GITEA_PASSWORD"
+                ruby /app/git-sync.rb
 
-        resources:
-          requests:
-            memory: "{{ .Values.gs.resources.requests.memory }}"
-            cpu: "{{ .Values.gs.resources.requests.cpu }}"
-          limits:
-            memory: "{{ .Values.gs.resources.limits.memory }}"
-            cpu: "{{ .Values.gs.resources.limits.cpu }}"
+            env:
+              - name: GIT_SOURCE_TEMPLATE
+                value: "https://github.com/wintech-thai/{repo}.git"
 
-        volumeMounts:
-        - name: data
-          mountPath: /data
+              - name: GIT_DEST_TEMPLATE
+                value: "http://gitea-http.gitea.svc.cluster.local:3000/{repo}.git"
 
-      volumes:
-        - name: data
-          emptyDir: {}
+              ### Source ###
+              - name: GIT_SOURCE_REPO1
+                value: "please-protect-data-plane"
+
+              - name: GIT_SOURCE_REPO2
+                value: "please-protect-control-plane"
+
+              - name: GIT_SOURCE_REPO3
+                value: "please-protect-control-plane"
+
+              - name: GIT_SOURCE_REF_TYPE1
+                value: "branch"
+
+              - name: GIT_SOURCE_REF_TYPE2
+                value: "branch"
+
+              - name: GIT_SOURCE_REF_TYPE3
+                value: "branch"
+
+              - name: GIT_SOURCE_REF_NAME1
+                value: "main"
+
+              - name: GIT_SOURCE_REF_NAME2
+                value: "development"
+
+              - name: GIT_SOURCE_REF_NAME3
+                value: "production"
+
+              ### Destination ###
+              - name: GIT_DEST_REPO1
+                value: "local/data-plane"
+
+              - name: GIT_DEST_REPO2
+                value: "local/control-plane-dev"
+
+              - name: GIT_DEST_REPO3
+                value: "local/control-plane-prod"
+
+              - name: GIT_DEST_REF_NAME1
+                value: "main"
+
+              - name: GIT_DEST_REF_NAME2
+                value: "development"
+
+              - name: GIT_DEST_REF_NAME3
+                value: "production"
+
+              ### Gitea ###
+              - name: GIT_PROVIDER
+                value: "gitea"
+
+              - name: GITEA_BASE_URL
+                value: "http://gitea-http.gitea.svc.cluster.local:3000"
+
+              - name: GITEA_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: gitea-admin-secret
+                    key: username
+
+              - name: GITEA_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: gitea-admin-secret
+                    key: password
+
+            resources:
+              requests:
+                memory: "{{ .Values.gs.resources.requests.memory }}"
+                cpu: "{{ .Values.gs.resources.requests.cpu }}"
+              limits:
+                memory: "{{ .Values.gs.resources.limits.memory }}"
+                cpu: "{{ .Values.gs.resources.limits.cpu }}"
+
+            volumeMounts:
+            - name: data
+              mountPath: /data
+
+          volumes:
+            - name: data
+              emptyDir: {}
