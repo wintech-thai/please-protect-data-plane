@@ -3,6 +3,7 @@ kind: CronJob
 metadata:
   name: git-sync
 spec:
+  # TO RUN : kubectl create job git-sync-001 --from=cronjob/git-sync -n pp-system
   schedule: "0 * * * *" # ตั้งไปงั้นๆ (ยังไม่ใช้)
   suspend: true         # << สำคัญ: หยุดไว้ก่อน
 
