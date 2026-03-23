@@ -21,7 +21,7 @@ spec:
           ignoreMissingValueFiles: true
           valueFiles:
             - values.yaml
-            - values-local.yaml
+            - values-custom.yaml
       destination:
         name: in-cluster
         namespace: censor-arkime
