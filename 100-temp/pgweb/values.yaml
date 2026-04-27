@@ -1,8 +1,0 @@
-domain: pgweb.rtarf-censor.dev-hubs.com
-
-### PG Web ###
-pgweb:
-  enabled: true
-  nameOverride: pgweb
-  ingress:
-    enabled: false

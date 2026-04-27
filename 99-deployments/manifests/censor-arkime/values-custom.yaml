@@ -3,10 +3,10 @@
 fullnameOverride: "censor-arkime"
 ingress:
   enabled: false
-  host: "arkime.rtarf-censor.dev-hubs.com"
+  host: "arkime.sensor.local"
   tls:
     - hosts:
-      - arkime.rtarf-censor.dev-hubs.com
+      - arkime.sensor.local
 
 configMap:  
   # -- Arkime configuration (config.ini)

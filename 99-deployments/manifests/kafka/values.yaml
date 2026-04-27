@@ -1,4 +1,4 @@
-domain: kafka-ui.rtarf-censor.dev-hubs.com
+domain: kafka-ui.sensor.local
 
 kafka-ui:
   enabled: true

@@ -1,4 +1,4 @@
-domain: loki-log.rtarf-censor.dev-hubs.com
+domain: loki-log.sensor.local
 
 loki-stack:
   enabled: true

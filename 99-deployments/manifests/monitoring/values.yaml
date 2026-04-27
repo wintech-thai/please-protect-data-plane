@@ -1,3 +1,3 @@
-domain: grafana-k8s.rtarf-censor.dev-hubs.com
-domainProm: prometheus.rtarf-censor.dev-hubs.com
-domainAlm: alm.rtarf-censor.dev-hubs.com
+domain: grafana-k8s.sensor.local
+domainProm: prometheus.sensor.local
+domainAlm: alm.sensor.local

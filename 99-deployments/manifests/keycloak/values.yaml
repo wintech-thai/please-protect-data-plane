@@ -1,4 +1,4 @@
-domain: keycloak.rtarf-censor.dev-hubs.com
+domain: keycloak.sensor.local
 
 keycloak:
   enabled: true
