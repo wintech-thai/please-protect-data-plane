@@ -1,3 +1,5 @@
+nameOverride: geoip-sync
+
 ifm:
   image:
     name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/interface-manager
@@ -17,7 +19,7 @@ ifm:
 gs:
   image:
     name: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/git-sync
-    tag: v0.0.1
+    tag: v0.0.2
 
   replica: 1
 
@@ -28,3 +30,17 @@ gs:
     limits:
       memory: "200Mi"
       cpu: "150m"
+
+nginx:
+  image: nginx:stable-alpine
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+
+updater:
+  image: asia-southeast1-docker.pkg.dev/its-artifact-commons/please-protect/please-protect-jobs:v0.0.23
+  downloadDir: /data/mmdb
+  remoteBaseUrl: 'https://downloads.center.please-protect.com'
+  checkInterval: 3600
+  remoteVersionPath: version.json

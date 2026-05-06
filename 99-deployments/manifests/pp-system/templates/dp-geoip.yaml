@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.nameOverride }}
+spec:
+  replicas: {{ .Values.nginx.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.nameOverride }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nameOverride }}
+    spec:
+      volumes:
+        - name: geoip-storage
+          persistentVolumeClaim:
+            claimName: '{{ .Values.nameOverride }}-pvc'
+
+      containers:
+        - name: nginx
+          image: {{ .Values.nginx.image }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: geoip-storage
+              mountPath: /usr/share/nginx/html
+          #readinessProbe:
+          #  httpGet:
+          #    path: /version.json
+          #    port: 80
+          #  initialDelaySeconds: 5
+          #livenessProbe:
+          #  httpGet:
+          #    path: /version.json
+          #    port: 80
+          #  initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
+        - name: maxmind-updater
+          args:
+            - /scripts/geoip-db-sync.rb
+          command:
+            - ruby
+
+          image: {{ .Values.updater.image }}
+          env:
+            - name: REMOTE_BASE_URL
+              value: {{ .Values.updater.remoteBaseUrl | quote }}
+            - name: DOWNLOAD_DIR
+              value: {{ .Values.updater.downloadDir | quote }}
+            - name: REMOTE_VERSION_PATH
+              value: {{ .Values.updater.remoteVersionPath | quote }}
+
+          volumeMounts:
+            - name: geoip-storage
+              mountPath: {{ .Values.updater.downloadDir | quote }}  #/data/mmdb
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
