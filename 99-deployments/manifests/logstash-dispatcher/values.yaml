@@ -38,6 +38,9 @@ logstash-dispatcher-es:
     - name: DUMMY
       value: "000"
 
+    - name: REDIS_HOST
+      value: "redis-master.redis.svc.cluster.local"
+
     - name: POD_NAME
       valueFrom:
         fieldRef:
