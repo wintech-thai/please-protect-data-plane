@@ -9,7 +9,6 @@ data:
         type: http_server
         address: 0.0.0.0:8686
         encoding: json
-
     transforms:
       normalize:
         type: remap
@@ -44,7 +43,6 @@ data:
             "index_name": .index_name,
             "@timestamp": now()
           }
-
     sinks:
       elastic:
         type: elasticsearch
