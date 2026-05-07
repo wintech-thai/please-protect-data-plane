@@ -67,6 +67,3 @@ data:
 
         healthcheck:
           enabled: true
-
-        encoding:
-          codec: json
