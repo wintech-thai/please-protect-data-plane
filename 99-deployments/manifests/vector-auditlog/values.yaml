@@ -42,7 +42,6 @@ vector:
 
   customConfig:
     data_dir: /vector-data-dir
-
     api:
       enabled: false
 
@@ -53,5 +52,9 @@ vector:
 
   extraVolumeMounts:
     - name: vector-config
-      mountPath: /etc/vector/vector.yaml
-      subPath: vector.yaml
+      mountPath: /etc/vector/custom-config
+      readOnly: true
+
+  args:
+    - "--config"
+    - "/etc/vector/custom-config/vector.yaml"
