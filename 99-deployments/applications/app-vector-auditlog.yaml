@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: vector-auditlog
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          custom: "true"
+  template:
+    metadata:
+      name: 'vector-auditlog-{{name}}'
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/wintech-thai/please-protect-data-plane.git
+        targetRevision: "{{name}}" #Based on environment
+        path: '99-deployments/manifests/vector-auditlog'
+        helm:
+          ignoreMissingValueFiles: true
+          valueFiles:
+            - values.yaml
+            - values-{{name}}.yaml
+            - values-local.yaml
+      destination:
+        name: in-cluster
+        namespace: vector-auditlog
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
+

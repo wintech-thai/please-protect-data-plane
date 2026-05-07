@@ -1,0 +1,127 @@
+---
+vector:
+  role: Stateless-Aggregator
+
+  fullnameOverride: vector-auditlog
+
+  replicas: 2
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: http-ingest
+        port: 8080
+        targetPort: 8686
+        protocol: TCP
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1500m
+      memory: 2Gi
+
+  env:
+    - name: VECTOR_SELF_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+
+    - name: ES_USER
+      valueFrom:
+        secretKeyRef:
+          name: es-basic-authen
+          key: ES_USER
+
+    - name: ES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: es-basic-authen
+          key: ES_PASSWORD
+
+  customConfig:
+    data_dir: /vector-data-dir
+
+    api:
+      enabled: false
+      address: 0.0.0.0:8686
+
+    sources:
+      auditlog_http:
+        type: http_server
+        address: 0.0.0.0:8686
+        encoding: json
+
+    transforms:
+      normalize:
+        type: remap
+        inputs:
+          - auditlog_http
+        source: |
+          .original_timestamp = .timestamp ?? now()
+
+          del(.headers)
+
+          .cust_ts_yyyy = format_timestamp!(now(), "%Y", timezone: "Asia/Bangkok")
+          .cust_ts_mm   = format_timestamp!(now(), "%m", timezone: "Asia/Bangkok")
+          .cust_ts_dd   = format_timestamp!(now(), "%d", timezone: "Asia/Bangkok")
+          .cust_ts_hh   = format_timestamp!(now(), "%H", timezone: "Asia/Bangkok")
+          .cust_ts_wd   = format_timestamp!(now(), "%w", timezone: "Asia/Bangkok")
+
+          if .AuditType == "API" && exists(.Path) {
+            .api = {}
+
+            parsed2, err2 = parse_regex(.Path, r'^/api/(?P<Controller>[^/]+)/org/(?P<OrgId>[^/]+)/action/(?P<ApiName>[^/]+)')
+            if err2 == null {
+              .api.ApiGroup = "User"
+              .api.Controller = parsed2.Controller
+              .api.OrgId = parsed2.OrgId
+              .api.ApiName = parsed2.ApiName
+            }
+          }
+
+          if .AuditType == "API" {
+            .index_name = "pp-" + .cust_ts_yyyy + "-" + .cust_ts_mm + "-" + .cust_ts_dd
+          } else if .AuditType == "CloudConnect" {
+            .index_name = "cc-" + .cust_ts_yyyy + "-" + .cust_ts_mm + "-" + .cust_ts_dd
+          } else {
+            .index_name = "misc-" + .cust_ts_yyyy + "-" + .cust_ts_mm + "-" + .cust_ts_dd
+          }
+
+          .data = .
+
+          . = {
+            "data": .data,
+            "index_name": .index_name,
+            "@timestamp": .original_timestamp
+          }
+
+    sinks:
+      elastic:
+        type: elasticsearch
+        inputs:
+          - normalize
+        endpoints:
+          - "https://es-censor-es-http.elasticsearch.svc.cluster.local:9200"
+        mode: bulk
+        compression: gzip
+
+        bulk:
+          index: "{{ index_name }}"
+
+        auth:
+          strategy: basic
+          user: "${ES_USER}"
+          password: "${ES_PASSWORD}"
+
+        request:
+          concurrency: 4
+          timeout_secs: 30
+
+        healthcheck:
+          enabled: true
+
+        encoding:
+          codec: json

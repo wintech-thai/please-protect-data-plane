@@ -1,6 +1,6 @@
 
 logstash-auditlog:
-  enabled: true
+  enabled: false #true --> ย้ายไปใช้ Vector
   antiAffinity: soft
 
   fullnameOverride: logstash-auditlog
