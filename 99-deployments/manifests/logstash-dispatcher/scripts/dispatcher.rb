@@ -85,6 +85,9 @@ def publish_geoip_attack_map(event)
     dest_lat    = event.get('[destination][geoip][latitude]')
     dest_long   = event.get('[destination][geoip][longitude]')
 
+    source_country = event.get('[source][geoip][country_name]')
+    dest_country = event.get('[destination][geoip][country_name]')
+
     # publish เฉพาะเมื่อ source หรือ destination เป็น public IP
     return unless public_ip?(source_ip) || public_ip?(dest_ip)
 
@@ -98,6 +101,8 @@ def publish_geoip_attack_map(event)
         source_long: source_long,
         dest_lat: dest_lat,
         dest_long: dest_long,
+        source_country: source_country,
+        dest_country: dest_country,
         ts: Time.now.to_i
     }
 
