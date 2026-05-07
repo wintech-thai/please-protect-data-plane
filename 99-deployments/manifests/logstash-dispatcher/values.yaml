@@ -36,7 +36,7 @@ logstash-dispatcher-es:
           key: password
 
     - name: DUMMY
-      value: "002"
+      value: "003"
 
     - name: REDIS_HOST
       value: "redis-master.redis.svc.cluster.local"
