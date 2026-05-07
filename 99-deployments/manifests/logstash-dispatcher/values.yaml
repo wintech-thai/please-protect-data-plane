@@ -1,6 +1,6 @@
 
 logstash-dispatcher-es:
-  enabled: false
+  enabled: true
   antiAffinity: soft
 
   fullnameOverride: logstash-dispatcher-es

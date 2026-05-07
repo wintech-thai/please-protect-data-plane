@@ -1,5 +1,6 @@
 # values.yaml
 vector:
+  enabled: false
   role: Stateless-Aggregator
   fullnameOverride: vector-dispatcher
 
