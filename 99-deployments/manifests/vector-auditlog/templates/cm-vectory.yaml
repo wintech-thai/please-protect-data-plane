@@ -54,7 +54,7 @@ data:
         compression: gzip
 
         bulk:
-          index: "{{ index_name }}"
+          index: "{{`{{ index_name }}`}}"
 
         auth:
           strategy: basic
