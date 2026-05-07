@@ -24,7 +24,7 @@ logstash-transformer:
 
   extraEnvs:
     - name: DUMMY
-      value: "008"
+      value: "009"
 
     - name: POD_NAME
       valueFrom:

@@ -199,11 +199,12 @@ def publish_geoip_attack_map(event)
 
         @redisObj.xadd(
             'geoip-attack-map',
-            '*',
             {
                 'data' => jsonStr
-            }
+            },
+            id: '*'
         )
+
     rescue => e
         puts "Redis stream publish error: #{e}"
     end
