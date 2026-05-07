@@ -53,10 +53,38 @@ logstash-transformer:
       mountPath: /scripts/
       readOnly: true
 
+    - name: geoip-db
+      mountPath: /tmp/geoip
+
   extraVolumes:
     - name: scripts
       configMap:
         name: transformer-cm
+
+    - name: geoip-db
+      emptyDir: {}
+
+  #
+  # Download mmdb before logstash starts
+  #
+  extraInitContainers:
+    - name: download-geoip
+      image: curlimages/curl:8.8.0
+      command:
+        - sh
+        - -c
+        - |
+          echo "Downloading GeoLite2-City.mmdb..."
+
+          curl -L \
+            -o /tmp/geoip/GeoLite2-City.mmdb \
+            http://geoip-sync.pp-system.svc.cluster.local/GeoLite2-City.mmdb
+
+          ls -lh /tmp/geoip/
+
+      volumeMounts:
+        - name: geoip-db
+          mountPath: /tmp/geoip
 
   logstashPipeline:
     logstash.conf: |
@@ -82,6 +110,7 @@ logstash-transformer:
             geoip {
               source => "[destination][ip]"
               target => "[destination][geoip]"
+              database => "/tmp/geoip/GeoLite2-City.mmdb"
             }
           }
 
@@ -89,6 +118,7 @@ logstash-transformer:
             geoip {
               source => "[source][ip]"
               target => "[source][geoip]"
+              database => "/tmp/geoip/GeoLite2-City.mmdb"
             }
           }
       }
