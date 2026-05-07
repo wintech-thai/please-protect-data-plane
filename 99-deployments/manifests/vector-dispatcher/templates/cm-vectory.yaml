@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-dispatcher-config
+data:
+  vector.yaml: |
+    sources:
+      kafka_input:
+        type: kafka
+        bootstrap_servers: kafka.kafka.svc.cluster.local:9092
+        group_id: for-dispatcher-es
+        topics:
+          - transformed-topic-beat
+        decoding:
+          codec: json
+
+    transforms:
+      dispatcher:
+        type: remap
+        inputs:
+          - kafka_input
+        source: |
+          # Preserve event
+          .cust_ts_start_dispatched = to_int!(format_timestamp!(now(), "%s"))
+
+          # Pod name from environment
+          .cust_pod_name_dispatcher = get_env_var!("POD_NAME")
+
+          # Original Logstash did:
+          # line = event.get('message')
+          # (No transformation performed)
+          # So Vector keeps .message unchanged
+
+          .cust_ts_done_dispatched = to_int!(format_timestamp!(now(), "%s"))
+
+    sinks:
+      elastic:
+        type: elasticsearch
+        inputs:
+          - dispatcher
+        endpoints:
+          - https://es-censor-es-http.elasticsearch.svc.cluster.local:9200
+        tls:
+          verify_certificate: false
+        auth:
+          strategy: basic
+          user: "${ES_USER}"
+          password: "${ES_PASSWORD}"
+        bulk:
+          index: "{{`censor-events-{{ cust_ts_yyyy }}{{ cust_ts_mm }}{{ cust_ts_dd }}-{{ cust_pod_name_dispatcher }}`}}"
