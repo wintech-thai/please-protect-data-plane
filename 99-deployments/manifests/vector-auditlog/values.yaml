@@ -3,7 +3,7 @@ vector:
   role: Stateless-Aggregator
   fullnameOverride: vector-auditlog
 
-  replicas: 2
+  replicas: 1
 
   service:
     enabled: true
