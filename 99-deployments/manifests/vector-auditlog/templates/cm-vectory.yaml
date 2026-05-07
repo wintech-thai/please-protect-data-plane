@@ -67,3 +67,5 @@ data:
 
         healthcheck:
           enabled: true
+        tls:
+          verify_certificate: false
