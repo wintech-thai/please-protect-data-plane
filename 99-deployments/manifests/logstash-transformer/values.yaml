@@ -1,6 +1,6 @@
 
 logstash-transformer:
-  enabled: false # Moved to Vector
+  enabled: true
   antiAffinity: soft
 
   fullnameOverride: logstash-transformer
