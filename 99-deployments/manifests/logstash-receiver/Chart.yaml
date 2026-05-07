@@ -25,7 +25,7 @@ appVersion: "1.0"
 dependencies:
 
   - name: "logstash"
-    alias: logstash-syslog-receiver
-    condition: logstash-syslog-receiver.enabled
+    alias: logstash-beat-receiver
+    condition: logstash-beat-receiver.enabled
     repository: "https://helm.elastic.co"
     version: "8.5.1"
