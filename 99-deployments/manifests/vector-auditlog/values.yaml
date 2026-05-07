@@ -40,6 +40,9 @@ vector:
           name: es-basic-authen
           key: ES_PASSWORD
 
+    - name: DUMMY
+      value: "001"
+
   customConfig:
     data_dir: /vector-data-dir
     api:
