@@ -105,22 +105,6 @@ logstash-transformer:
             path => "/scripts/transformer.rb"
             script_params => {}
           }
-
-          if [network][direction] == "outbound" {
-            geoip {
-              source => "[destination][ip]"
-              target => "[destination][geoip]"
-              database => "/tmp/geoip/GeoLite2-City.mmdb"
-            }
-          }
-
-          if [network][direction] == "external" {
-            geoip {
-              source => "[source][ip]"
-              target => "[source][geoip]"
-              database => "/tmp/geoip/GeoLite2-City.mmdb"
-            }
-          }
       }
 
       output {
