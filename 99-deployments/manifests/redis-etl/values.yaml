@@ -19,6 +19,7 @@ redis:
         memory: "1Gi"
   metrics:
     enabled: true
+    metrics.image.repository: bitnamilegacy/redis-exporter
     serviceMonitor:
       enabled: true
       additionalLabels:
