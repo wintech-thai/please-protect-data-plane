@@ -1,0 +1,25 @@
+redis:
+  fullnameOverride: redis-etl
+  architecture: standalone
+  auth:
+    enabled: false
+  image:
+    repository: bitnamilegacy/redis
+    tag: 7.2.4-debian-12-r9
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kube-prometheus-crds

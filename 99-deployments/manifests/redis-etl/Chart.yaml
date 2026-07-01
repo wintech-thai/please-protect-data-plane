@@ -1,0 +1,10 @@
+apiVersion: v2
+name: helm-redis-etl
+description: Redis standalone for ETL Streams pipeline
+version: 1.0.0
+appVersion: "7.2.4"
+dependencies:
+  - name: redis
+    alias: redis
+    repository: "https://charts.bitnami.com/bitnami"
+    version: "18.13.0"
