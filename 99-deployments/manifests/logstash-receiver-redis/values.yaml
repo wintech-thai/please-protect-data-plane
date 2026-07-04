@@ -19,7 +19,7 @@ logstash-beat-receiver-redis:
     - port: 5044
       protocol: TCP
       targetPort: 5044
-      nodePort: 30044
+      nodePort: 30045
       name: beats
 
   extraEnvs:
