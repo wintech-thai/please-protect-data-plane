@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transformer-cm
+  annotations:
+    checksum/config1: {{ .Files.Get "scripts/transformer.rb" | sha256sum }}
+data:
+  transformer.rb: |-
+{{ .Files.Get "scripts/transformer.rb" |  indent 4 }}

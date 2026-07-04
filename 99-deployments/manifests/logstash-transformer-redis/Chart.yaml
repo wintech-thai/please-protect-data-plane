@@ -1,0 +1,11 @@
+apiVersion: v2
+name: helm-logstash-transformer-redis
+description: Logstash transformer reading from Redis Streams and writing back to Redis Streams
+version: 1.0.0
+appVersion: "8.15.1"
+dependencies:
+  - name: logstash
+    alias: logstash-transformer-redis
+    condition: logstash-transformer-redis.enabled
+    repository: "https://helm.elastic.co"
+    version: "8.5.1"
