@@ -39,6 +39,29 @@ spec:
               mountPath: /usr/share/filebeat/filebeat.yml
               subPath: filebeat.yml
 
+        # ======================
+        # Filebeat sidecar (Redis Streams pipeline - dual-ship)
+        # ======================
+        - name: filebeat-redis
+          image: docker.elastic.co/beats/filebeat:8.12.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-e"
+            - "-c"
+            - "/usr/share/filebeat/filebeat.yml"
+          env:
+            - name: DUMMY
+              value: "{{ .Values.suricataEth0.dummyVar }}"
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: suricata-logs
+              mountPath: {{ .Values.suricataEth0.logDir }}
+              readOnly: true
+            - name: filebeat-config-redis
+              mountPath: /usr/share/filebeat/filebeat.yml
+              subPath: filebeat.yml
+
         ##### Suricata #####
         - name: suricata
           image: jasonish/suricata:latest
@@ -89,8 +112,12 @@ spec:
         - name: filebeat-config
           configMap:
             name: filebeat-config
-        
-        - name: suricata-logs 
+
+        - name: filebeat-config-redis
+          configMap:
+            name: filebeat-config-redis
+
+        - name: suricata-logs
           emptyDir: {}
 
   volumeClaimTemplates:
