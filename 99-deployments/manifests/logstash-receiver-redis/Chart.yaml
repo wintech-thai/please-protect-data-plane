@@ -1,0 +1,11 @@
+apiVersion: v2
+name: helm-logstash-receiver-redis
+description: Logstash Beats receiver writing to Redis Streams
+version: 1.0.0
+appVersion: "8.15.1"
+dependencies:
+  - name: logstash
+    alias: logstash-beat-receiver-redis
+    condition: logstash-beat-receiver-redis.enabled
+    repository: "https://helm.elastic.co"
+    version: "8.5.1"

@@ -1,0 +1,92 @@
+logstash-beat-receiver-redis:
+  enabled: true
+  antiAffinity: soft
+
+  fullnameOverride: logstash-beat-receiver-redis
+  replicas: 1
+  image: asia-southeast1-docker.pkg.dev/its-artifact-commons/utils/logstash
+  imageTag: v8.15.1-3
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "2Gi"
+  service:
+    type: NodePort
+    ports:
+    - port: 5044
+      protocol: TCP
+      targetPort: 5044
+      nodePort: 30044
+      name: beats
+
+  extraEnvs:
+    - name: REDIS_ETL_HOST
+      value: "redis-etl-master.redis-etl.svc.cluster.local"
+
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  logstashJavaOpts: "-Xms1g -Xmx1g"
+
+  logstashConfig:
+    logstash.yml: |
+      http.host: "0.0.0.0"
+      pipeline.ecs_compatibility: "disabled"
+      http.port: 9600
+
+  extraVolumeMounts:
+    - name: scripts
+      mountPath: /scripts/
+      readOnly: true
+
+  extraVolumes:
+    - name: scripts
+      configMap:
+        name: receiver-beat-cm
+
+  logstashPipeline:
+    logstash.conf: |
+      input {
+        beats {
+          port => 5044
+          codec => "json"
+          type => "log"
+        }
+      }
+
+      filter {
+        ruby {
+          path => "/scripts/receiver-beat.rb"
+          script_params => {}
+        }
+
+        ruby {
+          init => '
+            require "redis"
+            require "json"
+
+            STREAM   = "received-topic-beat"
+            GROUP    = "for-transformer"
+            MAXLEN   = 100_000
+
+            $r = Redis.new(host: ENV["REDIS_ETL_HOST"], port: 6379)
+            begin
+              $r.xgroup(:create, STREAM, GROUP, "$", mkstream: true)
+            rescue Redis::CommandError => e
+              raise e unless e.message.include?("BUSYGROUP")
+            end
+          '
+          code => '
+            payload = event.to_json
+            $r.xadd(STREAM, { "data" => payload }, id: "*", maxlen: MAXLEN, approximate: true)
+            event.cancel
+          '
+        }
+      }
+
+      output {}
