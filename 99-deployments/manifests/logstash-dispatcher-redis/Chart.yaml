@@ -1,0 +1,11 @@
+apiVersion: v2
+name: helm-logstash-dispatcher-redis
+description: Logstash dispatcher reading from Redis Streams and writing to Elasticsearch
+version: 1.0.0
+appVersion: "8.15.1"
+dependencies:
+  - name: logstash
+    alias: logstash-dispatcher-redis
+    condition: logstash-dispatcher-redis.enabled
+    repository: "https://helm.elastic.co"
+    version: "8.5.1"
