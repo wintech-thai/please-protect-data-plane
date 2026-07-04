@@ -49,6 +49,7 @@ logstash-dispatcher-redis:
       http.host: "0.0.0.0"
       pipeline.ecs_compatibility: "disabled"
       http.port: 9600
+      pipeline.workers: 1 # shared Redis client, not thread-safe — scale via replicas, not workers
 
   extraVolumeMounts:
     - name: scripts
