@@ -26,8 +26,7 @@ end
 def filter(event)
     populate_ts_aggregate(event)
     event.set('cust_ts_start_received', Time.now.to_i)
-    event.set('cust_pod_name', ENV['POD_NAME'])
-    event.set('cust_pod_source', 'file_beat')
+    event.set('cust_pod_name_receiver', ENV['POD_NAME'])
     event.set('cust_category', 'file_beat')
 
     event.set('cust_ts_done_received', Time.now.to_i)
