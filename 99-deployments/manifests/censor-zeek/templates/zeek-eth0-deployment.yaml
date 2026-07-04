@@ -93,6 +93,38 @@ spec:
               readOnly: true
 
         # ======================
+        # Filebeat sidecar (Redis Streams pipeline - dual-ship)
+        # ======================
+        - name: filebeat-redis
+          image: docker.elastic.co/beats/filebeat:8.12.0
+          imagePullPolicy: IfNotPresent
+
+          args:
+            - "-e"
+            - "-c"
+            - "/usr/share/filebeat/filebeat.yml"
+
+          env:
+            - name: DUMMY
+              value: "{{ .Values.zeekEth0.dummyVar }}"
+
+          securityContext:
+            runAsUser: 0
+
+          volumeMounts:
+            - name: zeek-logs
+              mountPath: {{ .Values.zeekEth0.logDir }}
+              readOnly: true
+
+            - name: filebeat-config-redis
+              mountPath: /usr/share/filebeat/filebeat.yml
+              subPath: filebeat.yml
+
+            - name: filebeat-modules
+              mountPath: /usr/share/filebeat/modules.d
+              readOnly: true
+
+        # ======================
         # Zeek
         # ======================
         - name: zeek
@@ -182,6 +214,10 @@ spec:
         - name: filebeat-modules
           configMap:
             name: filebeat-modules
+
+        - name: filebeat-config-redis
+          configMap:
+            name: filebeat-config-redis
 
         - name: iface-data
           emptyDir: {}

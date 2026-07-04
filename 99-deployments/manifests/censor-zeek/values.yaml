@@ -17,3 +17,7 @@ zeekEth0:
   logstash:
     host: logstash-beat-receiver.logstash-receiver.svc.cluster.local
     port: 5044
+
+  logstashRedis:
+    host: logstash-beat-receiver-redis.logstash-receiver-redis.svc.cluster.local
+    port: 5044
