@@ -65,7 +65,6 @@ logstash-dispatcher-redis:
       input {
         generator {
           count => 0
-          interval => 0
         }
       }
 
