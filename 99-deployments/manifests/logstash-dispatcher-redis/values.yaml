@@ -29,13 +29,13 @@ logstash-dispatcher-redis:
       valueFrom:
         secretKeyRef:
           name: es-basic-authen
-          key: ES_USER
+          key: username
 
     - name: ES_PASSWORD
       valueFrom:
         secretKeyRef:
           name: es-basic-authen
-          key: ES_PASSWORD
+          key: password
 
     - name: POD_NAME
       valueFrom:
