@@ -1,0 +1,11 @@
+apiVersion: v2
+name: helm-logstash-aggregator-redis
+description: Logstash IOC aggregator reading from Redis Streams
+version: 1.0.0
+appVersion: "8.15.1"
+dependencies:
+  - name: logstash
+    alias: logstash-aggregator-redis
+    condition: logstash-aggregator-redis.enabled
+    repository: "https://helm.elastic.co"
+    version: "8.5.1"
