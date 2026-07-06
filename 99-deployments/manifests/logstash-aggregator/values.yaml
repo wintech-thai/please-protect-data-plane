@@ -1,6 +1,6 @@
 
 logstash-aggregator-ioc:
-  enabled: true
+  enabled: false
   antiAffinity: soft
 
   fullnameOverride: logstash-aggregator-ioc

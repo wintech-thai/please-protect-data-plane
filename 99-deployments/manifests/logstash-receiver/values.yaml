@@ -1,6 +1,6 @@
 
 logstash-beat-receiver:
-  enabled: true
+  enabled: false
   antiAffinity: soft
 
   fullnameOverride: logstash-beat-receiver

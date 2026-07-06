@@ -1,6 +1,6 @@
 
 logstash-transformer:
-  enabled: true
+  enabled: false
   antiAffinity: soft
 
   fullnameOverride: logstash-transformer
