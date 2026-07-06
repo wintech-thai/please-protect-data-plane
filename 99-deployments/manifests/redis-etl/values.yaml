@@ -13,10 +13,13 @@ redis:
     resources:
       requests:
         cpu: "100m"
-        memory: "256Mi"
+        memory: "2Gi"
       limits:
         cpu: "500m"
-        memory: "1Gi"
+        memory: "3Gi"
+    configuration: |-
+      maxmemory 2700mb
+      maxmemory-policy noeviction
   metrics:
     enabled: true
     image:

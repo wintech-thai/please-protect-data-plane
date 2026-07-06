@@ -73,7 +73,7 @@ logstash-beat-receiver-redis:
 
             STREAM   = "received-topic-beat"
             GROUP    = "for-transformer"
-            MAXLEN   = 100_000
+            MAXLEN   = 180_000
 
             $r = Redis.new(host: ENV["REDIS_ETL_HOST"], port: 6379)
             begin

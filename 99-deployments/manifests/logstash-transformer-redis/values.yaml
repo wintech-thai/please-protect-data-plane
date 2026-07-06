@@ -71,7 +71,7 @@ logstash-transformer-redis:
             CONSUMER   = "transformer-#{ENV["POD_NAME"]}"
             OUT_STREAM = "transformed-topic-beat"
             OUT_GROUP  = "for-aggregator-ioc"
-            MAXLEN     = 100_000
+            MAXLEN     = 180_000
 
             $r_in = Redis.new(host: ENV["REDIS_ETL_HOST"], port: 6379)
             begin
@@ -113,7 +113,7 @@ logstash-transformer-redis:
             code => '
               if event.get("cust_ts_yyyy")
                 payload = event.to_json
-                $r_out.xadd("transformed-topic-beat", { "data" => payload }, id: "*", maxlen: 100_000, approximate: true)
+                $r_out.xadd("transformed-topic-beat", { "data" => payload }, id: "*", maxlen: 180_000, approximate: true)
               end
             '
           }
