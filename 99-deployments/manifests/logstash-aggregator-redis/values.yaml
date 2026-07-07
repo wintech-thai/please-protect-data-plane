@@ -26,7 +26,7 @@ logstash-aggregator-redis:
       value: "redis-etl-master.redis-etl.svc.cluster.local"
 
     - name: REDIS_HOST
-      value: "redis-etl-master.redis-etl.svc.cluster.local"
+      value: "redis-master.redis.svc.cluster.local"
 
     - name: POD_NAME
       valueFrom:
