@@ -15,7 +15,7 @@ kafka-ui:
       SERVER_SERVLET_CONTEXT_PATH: "/tools/kafka-ui"
 
 kafka:
-  enabled: true
+  enabled: false
   fullnameOverride: kafka
   autoCreateTopicsEnable: true
   
