@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: logstash-dispatcher-redis
+  labels:
+    release: kube-prometheus-crds  # เพื่อให้ Prometheus มองเห็น
+spec:
+  namespaceSelector:
+    matchNames:
+      - logstash-dispatcher-redis
+
+  selector:
+    matchLabels:
+      app: logstash-dispatcher-redis
+
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

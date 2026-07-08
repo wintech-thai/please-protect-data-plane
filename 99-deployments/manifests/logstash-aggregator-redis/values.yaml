@@ -21,6 +21,15 @@ logstash-aggregator-redis:
       targetPort: 9198
       name: metrics
 
+  extraContainers:
+    - name: logstash-exporter
+      image: bonniernews/logstash_exporter:latest
+      args:
+        - "--logstash.endpoint=http://localhost:9600"
+      ports:
+        - name: metrics
+          containerPort: 9198
+
   extraEnvs:
     - name: REDIS_ETL_HOST
       value: "redis-etl-master.redis-etl.svc.cluster.local"
@@ -70,21 +79,50 @@ logstash-aggregator-redis:
             IN_GROUP  = "for-aggregator-ioc"
             CONSUMER  = "aggregator-ioc-#{ENV["POD_NAME"]}"
 
-            $r_in = Redis.new(host: ENV["REDIS_ETL_HOST"], port: 6379)
+            def connect_with_retry(host, port)
+              attempt = 0
+              begin
+                r = Redis.new(host: host, port: port)
+                r.ping
+                r
+              rescue Redis::BaseConnectionError => e
+                attempt += 1
+                if attempt >= 30
+                  STDOUT.puts("ERROR aggregator: Redis unreachable after #{attempt} attempts (#{e.message}), failing")
+                  raise
+                end
+                wait = [2 ** [attempt, 6].min, 30].min
+                STDOUT.puts("WARN aggregator: Redis connect failed (#{e.message}), retry in #{wait}s (#{attempt}/30)")
+                sleep wait
+                retry
+              end
+            end
+
+            $r_in = connect_with_retry(ENV["REDIS_ETL_HOST"], 6379)
             begin
               $r_in.xgroup(:create, IN_STREAM, IN_GROUP, "$", mkstream: true)
             rescue Redis::CommandError => e
               raise e unless e.message.include?("BUSYGROUP")
+            rescue Redis::BaseConnectionError => e
+              STDOUT.puts("WARN aggregator: xgroup create failed (#{e.message}), retrying")
+              sleep 2
+              retry
             end
           '
           code => '
-            entries = $r_in.xreadgroup(IN_GROUP, CONSUMER, IN_STREAM, ">", count: 1, block: 1000)
-            if entries && entries[IN_STREAM] && !entries[IN_STREAM].empty?
-              id, fields = entries[IN_STREAM].first
-              new_ev = LogStash::Event.new(JSON.parse(fields["data"]))
-              event.overwrite(new_ev)
-              $r_in.xack(IN_STREAM, IN_GROUP, id)
-            else
+            begin
+              entries = $r_in.xreadgroup(IN_GROUP, CONSUMER, IN_STREAM, ">", count: 1, block: 1000)
+              if entries && entries[IN_STREAM] && !entries[IN_STREAM].empty?
+                id, fields = entries[IN_STREAM].first
+                new_ev = LogStash::Event.new(JSON.parse(fields["data"]))
+                event.overwrite(new_ev)
+                $r_in.xack(IN_STREAM, IN_GROUP, id)
+              else
+                event.cancel
+              end
+            rescue Redis::BaseConnectionError => e
+              STDOUT.puts("WARN aggregator: Redis unavailable, skipping tick (#{e.message})")
+              sleep 1
               event.cancel
             end
           '

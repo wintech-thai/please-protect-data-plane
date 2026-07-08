@@ -11,6 +11,7 @@ require 'redis'
 
 def connect_redis()
     redisHost = ENV['REDIS_HOST'] || 'redis-etl-master.redis-etl.svc.cluster.local'
+    attempt = 0
     begin
         r = Redis.new(
           :host => redisHost,
@@ -24,8 +25,15 @@ def connect_redis()
           raise 'Ping failed!!!'
         end
     rescue => e
-        puts("ERROR: #{e}")
-        exit 100
+        attempt += 1
+        if attempt >= 30
+          puts("ERROR: Redis unreachable after #{attempt} attempts (#{e}), exiting")
+          exit 100
+        end
+        wait = [2 ** [attempt, 6].min, 30].min
+        puts("WARN : Redis connect failed (#{e}), retry in #{wait}s (#{attempt}/30)")
+        sleep wait
+        retry
     end
 
     return r

@@ -9,10 +9,10 @@ logstash-beat-receiver-redis:
   resources:
     requests:
       cpu: "250m"
-      memory: "1Gi"
+      memory: "2Gi"
     limits:
       cpu: "2"
-      memory: "2Gi"
+      memory: "3Gi"
   service:
     type: NodePort
     ports:
@@ -21,6 +21,32 @@ logstash-beat-receiver-redis:
       targetPort: 5044
       nodePort: 30045
       name: beats
+    - port: 9198
+      protocol: TCP
+      targetPort: 9198
+      name: metrics
+
+  extraContainers:
+    - name: logstash-exporter
+      image: bonniernews/logstash_exporter:latest
+      args:
+        - "--logstash.endpoint=http://localhost:9600"
+      ports:
+        - name: metrics
+          containerPort: 9198
+
+  extraInitContainers:
+    - name: download-geoip
+      image: curlimages/curl:8.8.0
+      command:
+        - sh
+        - -c
+        - |
+          curl -L -o /tmp/geoip/GeoLite2-City.mmdb \
+            http://geoip-sync.pp-system.svc.cluster.local/GeoLite2-City.mmdb
+      volumeMounts:
+        - name: geoip-db
+          mountPath: /tmp/geoip
 
   extraEnvs:
     - name: REDIS_ETL_HOST
@@ -44,11 +70,16 @@ logstash-beat-receiver-redis:
     - name: scripts
       mountPath: /scripts/
       readOnly: true
+    - name: geoip-db
+      mountPath: /tmp/geoip
+      readOnly: true
 
   extraVolumes:
     - name: scripts
       configMap:
         name: receiver-beat-cm
+    - name: geoip-db
+      emptyDir: {}
 
   logstashPipeline:
     logstash.conf: |
@@ -66,6 +97,22 @@ logstash-beat-receiver-redis:
           script_params => {}
         }
 
+        if [network][direction] == "outbound" {
+          geoip {
+            source => "[destination][ip]"
+            target => "[destination][geoip]"
+            database => "/tmp/geoip/GeoLite2-City.mmdb"
+          }
+        }
+
+        if [network][direction] == "external" {
+          geoip {
+            source => "[source][ip]"
+            target => "[source][geoip]"
+            database => "/tmp/geoip/GeoLite2-City.mmdb"
+          }
+        }
+
         ruby {
           init => '
             require "redis"
@@ -75,16 +122,44 @@ logstash-beat-receiver-redis:
             GROUP    = "for-transformer"
             MAXLEN   = 180_000
 
-            $r = Redis.new(host: ENV["REDIS_ETL_HOST"], port: 6379)
+            def connect_with_retry(host, port)
+              attempt = 0
+              begin
+                r = Redis.new(host: host, port: port)
+                r.ping
+                r
+              rescue Redis::BaseConnectionError => e
+                attempt += 1
+                if attempt >= 30
+                  STDOUT.puts("ERROR receiver: Redis unreachable after #{attempt} attempts (#{e.message}), failing")
+                  raise
+                end
+                wait = [2 ** [attempt, 6].min, 30].min
+                STDOUT.puts("WARN receiver: Redis connect failed (#{e.message}), retry in #{wait}s (#{attempt}/30)")
+                sleep wait
+                retry
+              end
+            end
+
+            $r = connect_with_retry(ENV["REDIS_ETL_HOST"], 6379)
             begin
               $r.xgroup(:create, STREAM, GROUP, "$", mkstream: true)
             rescue Redis::CommandError => e
               raise e unless e.message.include?("BUSYGROUP")
+            rescue Redis::BaseConnectionError => e
+              STDOUT.puts("WARN receiver: xgroup create failed (#{e.message}), retrying")
+              sleep 2
+              retry
             end
           '
           code => '
-            payload = event.to_json
-            $r.xadd(STREAM, { "data" => payload }, id: "*", maxlen: MAXLEN, approximate: true)
+            begin
+              payload = event.to_json
+              $r.xadd(STREAM, { "data" => payload }, id: "*", maxlen: MAXLEN, approximate: true)
+            rescue Redis::BaseConnectionError => e
+              STDOUT.puts("WARN receiver: Redis unavailable, dropping event (#{e.message})")
+              sleep 1
+            end
             event.cancel
           '
         }
