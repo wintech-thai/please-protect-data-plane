@@ -18,6 +18,7 @@ logstash-aggregator-redis:
   # Redis-consumer pattern, same silent-stall risk. Restarts pod if
   # pipelines.main.events.in hasn't moved in 300s.
   livenessProbe:
+    httpGet: null # chart default sets httpGet; a Probe may only have one handler type, so this must be explicitly nulled to use exec below
     exec:
       command:
         - /bin/sh
