@@ -13,6 +13,36 @@ logstash-dispatcher-redis:
     limits:
       cpu: "3"
       memory: "2Gi"
+
+  livenessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - |
+          CURR=$(curl -sf -m 5 http://localhost:9600/_node/stats/pipelines/main | /usr/share/logstash/bin/ruby -rjson -e 'print JSON.parse(STDIN.read)["events"]["in"]' 2>/dev/null)
+          if [ -z "$CURR" ]; then echo "cannot reach logstash API"; exit 1; fi
+          STATE=/tmp/.pipeline_liveness
+          PREV=$(cat "$STATE.count" 2>/dev/null || echo -1)
+          echo "$CURR" > "$STATE.count"
+          NOW=$(date +%s)
+          if [ "$CURR" != "$PREV" ]; then
+            echo "$NOW" > "$STATE.since"
+            exit 0
+          fi
+          SINCE=$(cat "$STATE.since" 2>/dev/null || echo "$NOW")
+          STALL=$((NOW - SINCE))
+          if [ "$STALL" -gt 300 ]; then
+            echo "pipeline stalled ${STALL}s, events.in stuck at $CURR"
+            exit 1
+          fi
+          exit 0
+    initialDelaySeconds: 180
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 1
+    successThreshold: 1
+
   service:
     type: ClusterIP
     ports:
@@ -91,7 +121,7 @@ logstash-dispatcher-redis:
             def connect_with_retry(host, port)
               attempt = 0
               begin
-                r = Redis.new(host: host, port: port)
+                r = Redis.new(host: host, port: port, timeout: 5, reconnect_attempts: 1)
                 r.ping
                 r
               rescue Redis::BaseConnectionError => e
@@ -152,7 +182,12 @@ logstash-dispatcher-redis:
             ssl_certificate_verification => false
             user => "${ES_USER}"
             password => "${ES_PASSWORD}"
+            action => "create"
+            ecs_compatibility => "v8"
+            http_compression => "true"
             index => "censor-events-redis-%{[cust_ts_yyyy]}%{[cust_ts_mm]}%{[cust_ts_dd]}-%{[cust_pod_name_dispatcher]}"
+            template_overwrite => "true"
+            timeout => "0.5"
             ilm_enabled => false
           }
         }
