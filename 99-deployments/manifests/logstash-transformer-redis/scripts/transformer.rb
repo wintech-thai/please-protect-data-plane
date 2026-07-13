@@ -14,6 +14,8 @@ def connect_redis()
         r = Redis.new(
           :host => redisHost,
           :port => 6379,
+          :timeout => 5,
+          :reconnect_attempts => 1,
         )
 
         client_ping = r.ping

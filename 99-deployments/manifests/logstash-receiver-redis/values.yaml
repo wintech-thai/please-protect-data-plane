@@ -125,7 +125,7 @@ logstash-beat-receiver-redis:
             def connect_with_retry(host, port)
               attempt = 0
               begin
-                r = Redis.new(host: host, port: port)
+                r = Redis.new(host: host, port: port, timeout: 5, reconnect_attempts: 1)
                 r.ping
                 r
               rescue Redis::BaseConnectionError => e

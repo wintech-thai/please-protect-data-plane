@@ -91,7 +91,7 @@ logstash-dispatcher-redis:
             def connect_with_retry(host, port)
               attempt = 0
               begin
-                r = Redis.new(host: host, port: port)
+                r = Redis.new(host: host, port: port, timeout: 5, reconnect_attempts: 1)
                 r.ping
                 r
               rescue Redis::BaseConnectionError => e
@@ -152,7 +152,12 @@ logstash-dispatcher-redis:
             ssl_certificate_verification => false
             user => "${ES_USER}"
             password => "${ES_PASSWORD}"
+            action => "create"
+            ecs_compatibility => "v8"
+            http_compression => "true"
             index => "censor-events-redis-%{[cust_ts_yyyy]}%{[cust_ts_mm]}%{[cust_ts_dd]}-%{[cust_pod_name_dispatcher]}"
+            template_overwrite => "true"
+            timeout => "0.5"
             ilm_enabled => false
           }
         }
