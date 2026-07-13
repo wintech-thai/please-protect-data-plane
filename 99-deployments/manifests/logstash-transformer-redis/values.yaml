@@ -15,7 +15,7 @@ logstash-transformer-redis:
       memory: "2Gi"
 
   livenessProbe:
-    httpGet: null # chart default sets httpGet; a Probe may only have one handler type, so this must be explicitly nulled to use exec below
+    httpGet: null
     exec:
       command:
         - /bin/sh

@@ -14,11 +14,8 @@ logstash-aggregator-redis:
       cpu: "2"
       memory: "2Gi"
 
-  # See logstash-transformer-redis/values.yaml for rationale — same single-worker
-  # Redis-consumer pattern, same silent-stall risk. Restarts pod if
-  # pipelines.main.events.in hasn't moved in 300s.
   livenessProbe:
-    httpGet: null # chart default sets httpGet; a Probe may only have one handler type, so this must be explicitly nulled to use exec below
+    httpGet: null
     exec:
       command:
         - /bin/sh
