@@ -12,7 +12,7 @@ logstash-beat-receiver-redis:
       memory: "2Gi"
     limits:
       cpu: "2"
-      memory: "3Gi"
+      memory: "4Gi"
   service:
     type: NodePort
     ports:
